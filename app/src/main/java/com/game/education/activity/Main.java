@@ -160,10 +160,9 @@ public class Main extends AppCompatActivity {
                                     }
 
 
-        GetAbout();
+        //GetAbout();
         // GetVersion();
 
-    }//main
 
 
     private void SaveBackupInfo()
