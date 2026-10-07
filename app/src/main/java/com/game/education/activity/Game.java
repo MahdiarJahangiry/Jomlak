@@ -1194,11 +1194,10 @@ public class Game extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();  // ✅ اضافه شد
         Intent i = new Intent(Game.this, Chapters.class);
         i.putExtra("id", id_level);
         startActivity(i);
-        finish();
+        super.onBackPressed();
     }
 
     @Override

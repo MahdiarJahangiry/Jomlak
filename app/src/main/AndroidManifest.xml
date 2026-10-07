@@ -3,6 +3,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.game.education">
 
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE"
+        tools:ignore="ManifestOrder" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="ir.mservices.market.BILLING" />
+
+    <!-- مجوزهای ربات -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <queries>
+        <package android:name="ir.mservices.market" />
+        <intent>
+            <action android:name="ir.mservices.market.InAppBillingService.BIND" />
+            <data android:mimeType="*/*" />
+        </intent>
+    </queries>
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -13,67 +35,33 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Amirza"
+        android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute">
+
+        <!-- Activities موجود اپلیکیشن اصلی (بدون تغییر) -->
+        <activity android:name=".activity.Dashboard" android:configChanges="orientation|keyboardHidden" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".activity.Loading" android:configChanges="orientation|keyboardHidden" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".activity.Shop" android:configChanges="orientation|keyboardHidden" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".activity.TitleBadges" android:configChanges="orientation|keyboardHidden" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".activity.Badges" android:configChanges="orientation|keyboardHidden" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".activity.Chapters" android:configChanges="orientation|keyboardHidden" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".activity.Bases" android:configChanges="orientation|keyboardHidden" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".activity.Categories" android:configChanges="orientation|keyboardHidden" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".activity.Profile" android:configChanges="orientation|keyboardHidden" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".activity.Titles" android:configChanges="orientation|keyboardHidden" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".activity.Main" android:configChanges="orientation|keyboardHidden" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".activity.Game" android:configChanges="orientation|keyboardHidden" android:exported="false" android:screenOrientation="portrait" />
+
+        <!-- 🆕 ربات جملک -->
         <activity
-            android:name=".activity.Dashboard"
+            android:name=".activity.BotActivity"
             android:configChanges="orientation|keyboardHidden"
             android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activity.Loading"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activity.Shop"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activity.TitleBadges"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activity.Badges"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activity.Chapters"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activity.Bases"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activity.Categories"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activity.Profile"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activity.Titles"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activity.Main"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activity.Game"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+            android:label="ربات جملک"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Splash (لانچر) -->
         <activity
             android:name=".activity.Splash"
             android:configChanges="orientation|keyboardHidden"
@@ -81,23 +69,8 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
-
-    <uses-permission
-        android:name="android.permission.ACCESS_NETWORK_STATE"
-        tools:ignore="ManifestOrder" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="ir.mservices.market.BILLING" />
-    <queries>
-        <package android:name="ir.mservices.market" />
-        <intent>
-            <action android:name="ir.mservices.market.InAppBillingService.BIND" />
-            <data android:mimeType="*/*" />
-        </intent>
-    </queries>
-
 </manifest>

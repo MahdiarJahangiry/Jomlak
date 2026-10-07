@@ -1,20 +1,21 @@
 package com.game.education.api;
 
 import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
-public class ServerData {
-
-    // ============ کلاس‌های موجود (بدون تغییر) ============
-
-    public class SaveBack {
+public class ServerData
+{
+    public class SaveBack
+    {
         @SerializedName("apiVersion") String apiVersion;
         @SerializedName("success") Boolean success;
         public String getApiVersion() { return apiVersion; }
         public Boolean getSuccess() { return success; }
     }
 
-    public static class Message {
+    public static class Message
+    {
         @SerializedName("apiVersion") String apiVersion;
         @SerializedName("success") Boolean success;
         @SerializedName("result") Result result;
@@ -30,7 +31,8 @@ public class ServerData {
         public String getMessage() { return message; }
     }
 
-    public static class Result {
+    public static class Result
+    {
         @SerializedName("token") String token;
         @SerializedName("version") String version;
         @SerializedName("packages") List<Packages> packages;
@@ -70,15 +72,13 @@ public class ServerData {
         public String getVersion() { return version; }
     }
 
-    // ============ کلاس‌های دیگر (بدون تغییر) ============
-
-    public class Packages {
+    public class Packages
+    {
         @SerializedName("id") int id;
         @SerializedName("coins") int coins;
         @SerializedName("title") String fa_title;
         @SerializedName("icon") String icon;
         @SerializedName("price") int price;
-
         public int getId() { return id; }
         public int getCoins() { return coins; }
         public String getFa_title() { return fa_title; }
@@ -86,17 +86,20 @@ public class ServerData {
         public int getPrice() { return price; }
     }
 
-    public class levels {
+    public class levels
+    {
         @SerializedName("items") List<Items> items;
         public List<Items> getItems() { return items; }
     }
 
-    public class Data {
+    public class Data
+    {
         @SerializedName("items") ItemsProfile items;
         public ItemsProfile getItems() { return items; }
     }
 
-    public static class ItemsProfile {
+    public static class ItemsProfile
+    {
         @SerializedName("username") String username;
         @SerializedName("name") String name;
         @SerializedName("age") String age;
@@ -128,14 +131,16 @@ public class ServerData {
         public String getGender() { return gender; }
     }
 
-    public class About {
+    public class About
+    {
         @SerializedName("title") String title;
         @SerializedName("value") String value;
         public String getTitle() { return title; }
         public String getValue() { return value; }
     }
 
-    public class Items {
+    public class Items
+    {
         @SerializedName("id") int id;
         @SerializedName("title") String title;
         @SerializedName("avatar") String avatar;
@@ -143,7 +148,6 @@ public class ServerData {
         @SerializedName("sponsor") Sponsor sponsor;
         @SerializedName("celebrity") Celebrity celebrity;
         @SerializedName("levelCount") int levelCount;
-
         public Sponsor getSponsor() { return sponsor; }
         public int getLevelCount() { return levelCount; }
         public Celebrity getCelebrity() { return celebrity; }
@@ -153,19 +157,20 @@ public class ServerData {
         public String getTitle() { return title; }
     }
 
-    public class Sponsor {
+    public class Sponsor
+    {
         @SerializedName("title") String title;
         @SerializedName("image") String image;
         public String getTitle() { return title; }
         public String getImage() { return image; }
     }
 
-    public class Celebrity {
+    public class Celebrity
+    {
         @SerializedName("id") int id;
         @SerializedName("title") String title;
         @SerializedName("avatar") String avatar;
         @SerializedName("voice") String voice;
-
         public int getId() { return id; }
         public String getTitle() { return title; }
         public String getAvatar() { return avatar; }
@@ -173,7 +178,7 @@ public class ServerData {
     }
 
     // ============================================
-    // ✅ کلاس‌های ربات - مستقیماً زیر ServerData (نه داخل ItemsProfile!)
+    // ✅ کلاس‌های ربات - مستقیماً زیر ServerData
     // ============================================
 
     public static class Title {

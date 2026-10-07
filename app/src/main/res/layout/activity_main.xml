@@ -22,40 +22,7 @@
         android:layout_alignParentBottom="true"
         android:src="@drawable/ui" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:padding="15dp"
-        android:id="@+id/li_buttom"
-        android:layout_alignParentBottom="true"
-        android:gravity="center"
-        android:background="#E6FCFCFC"
-        android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:id="@+id/li_frinds"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:src="@drawable/frind_icon"
-                android:visibility="visible" />
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:id="@+id/txt_frinds"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/frinds_main"
-                android:textColor="@color/black"
-                android:textSize="16sp" />
-
-
-        </LinearLayout>
 
         <TextView
             android:layout_width="0dp"
@@ -104,17 +71,71 @@
 
             </LinearLayout>
 
-
-
-
-
-
         </LinearLayout>
-
 
     </LinearLayout>
 
+<LinearLayout
+android:layout_width="match_parent"
+android:padding="15dp"
+android:id="@+id/li_buttom"
+android:layout_alignParentBottom="true"
+android:gravity="center"
+android:background="#E6FCFCFC"
+android:layout_height="wrap_content">
 
+<LinearLayout
+    android:id="@+id/li_frinds"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:src="@drawable/frind_icon"
+        android:visibility="visible" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:id="@+id/txt_frinds"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/frinds_main"
+        android:textColor="@color/black"
+        android:textSize="16sp" />
+
+
+</LinearLayout>
+<LinearLayout
+    android:id="@+id/li_bot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:gravity="center_vertical"
+    android:layout_marginTop="8dp"
+    android:background="#4CAF50"
+    android:clickable="true"
+    android:focusable="true">
+
+    <ImageView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@android:drawable/ic_menu_manage"
+        android:tint="#FFFFFF"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🤖 ربات خودکار جملک"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginStart="12dp"/>
+</LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"

@@ -6,26 +6,20 @@ import com.google.gson.GsonBuilder;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class RetrofitClient {
-
-    // ✅ اصلاح شد: baseUrl فقط تا /api/
+public class RetrofitClient
+{
     public static final String baseUrl = "https://unusualteaching.ir/api/";
     private static Retrofit retrofit;
 
     public static Retrofit getRetrofitInstance() {
 
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .readTimeout(60, TimeUnit.SECONDS)
                 .writeTimeout(60, TimeUnit.SECONDS)
                 .connectTimeout(30, TimeUnit.SECONDS)
-                .addInterceptor(logging)
                 .build();
 
         if (retrofit == null) {

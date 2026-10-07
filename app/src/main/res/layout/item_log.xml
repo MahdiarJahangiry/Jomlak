@@ -7,4 +7,5 @@
     android:textColor="#D4D4D4"
     android:textSize="11sp"
     android:fontFamily="monospace"
-    android:textIsSelectable="true" />
+    android:textIsSelectable="true"
+    />

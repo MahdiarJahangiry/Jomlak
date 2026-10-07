@@ -122,7 +122,7 @@ public class Main extends AppCompatActivity {
             public void onClick(View view) {
                 sound.PlayClick();
                 if (prefs.GetUsername().equals("")) {
-                    new DialogRegister(Main.this, "main",googleHelper);
+                    new DialogRegister(Main.this, "main", googleHelper);
                 }
             }
         });
@@ -133,26 +133,38 @@ public class Main extends AppCompatActivity {
                 sound.PlayClick();
                 if (!prefs.GetEmail().equals("")) {
                     DialoFrinds();
-                }else {
-                    AdsTapsell.Dialog(App.con.getResources().getString(R.string.email_verified),Main.this);
+                } else {
+                    AdsTapsell.Dialog(App.con.getResources().getString(R.string.email_verified), Main.this);
                 }
             }
         });
         img_play = findViewById(R.id.img_play);
-        img_play.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sound.PlayClick();
-                Intent i = new Intent(Main.this, Titles.class);
-                startActivity(i);
-            }
-        });
+        //img_play.setOnClickListener(new View.OnClickListener() {
+        //   @Override
+        //  public void onClick(View view) {
+        //      sound.PlayClick();
+        //      Intent i = new Intent(Main.this, Titles.class);
+        //    startActivity(i);
+    //}
+
+
+            LinearLayout li_bot = findViewById(R.id.li_bot);
+            li_bot.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    sound.PlayClick();
+                    Intent i = new Intent(Main.this, BotActivity.class);
+                    startActivity(i);
+                }
+            });
+                                    }
 
 
         GetAbout();
         // GetVersion();
 
     }//main
+
 
     private void SaveBackupInfo()
     {

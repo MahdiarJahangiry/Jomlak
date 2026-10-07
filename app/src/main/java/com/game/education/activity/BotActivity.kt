@@ -34,7 +34,6 @@ class BotActivity : AppCompatActivity() {
         binding = ActivityBotBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // ✅ prefs قبل از checkLoginStatus مقداردهی شود
         prefs = Prefs(this)
 
         setupRecyclerView()
@@ -45,11 +44,11 @@ class BotActivity : AppCompatActivity() {
     private fun checkLoginStatus() {
         val username = prefs.GetUsername()
         if (username.isNullOrEmpty()) {
-            appendLog("لطفا ابتدا در برنامه اصلی وارد شوید")
+            appendLog("❌ لطفا ابتدا در برنامه اصلی وارد شوید")
             Toast.makeText(this, "لطفا ابتدا وارد شوید", Toast.LENGTH_LONG).show()
             binding.btnStart.isEnabled = false
         } else {
-            appendLog("کاربر وارد شده: $username")
+            appendLog("✅ کاربر وارد شده: $username")
             binding.btnStart.isEnabled = true
             binding.btnLogin.visibility = View.GONE
             binding.etUsername.visibility = View.GONE
@@ -71,7 +70,7 @@ class BotActivity : AppCompatActivity() {
         binding.btnSendEmail.setOnClickListener { sendEmail() }
         binding.btnClear.setOnClickListener {
             logAdapter.clear()
-            appendLog("لاگ پاک شد")
+            appendLog("🗑️ لاگ پاک شد")
         }
     }
 
@@ -101,11 +100,11 @@ class BotActivity : AppCompatActivity() {
                     prefs.SetToken(result.token)
                     result.affiliateCode?.let { prefs.SaveCode(it) }
 
-                    appendLog("ورود موفق!")
+                    appendLog("✅ ورود موفق!")
                     binding.btnStart.isEnabled = true
                     checkLoginStatus()
                 } else {
-                    appendLog("ورود ناموفق")
+                    appendLog("❌ ورود ناموفق")
                     Toast.makeText(this@BotActivity, "ورود ناموفق", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -113,7 +112,7 @@ class BotActivity : AppCompatActivity() {
             override fun onFailure(call: Call<ServerData.Message>, t: Throwable) {
                 binding.btnLogin.isEnabled = true
                 binding.btnLogin.text = "ورود"
-                appendLog("خطا: ${t.message}")
+                appendLog("❌ خطا: ${t.message}")
             }
         })
     }
@@ -134,7 +133,7 @@ class BotActivity : AppCompatActivity() {
         binding.btnStart.isEnabled = false
         binding.btnStart.text = "در حال اجرا..."
 
-        // ✅ توکن با Bearer اضافه شد (سرور انتظار Bearer دارد)
+        // ✅ توکن با Bearer
         bot = JomlakBot(
             context = applicationContext,
             token = "Bearer $token",
@@ -147,7 +146,7 @@ class BotActivity : AppCompatActivity() {
                     bot?.run()
                 }
             } catch (e: Exception) {
-                appendLog("خطا: ${e.message}")
+                appendLog("❌ خطا: ${e.message}")
                 Log.e("BotActivity", "Bot error", e)
             } finally {
                 isRunning = false
@@ -180,7 +179,7 @@ class BotActivity : AppCompatActivity() {
 
             Toast.makeText(
                 this@BotActivity,
-                if (success) "ایمیل ارسال شد" else "ارسال ناموفق",
+                if (success) "ایمیل ارسال شد ✅" else "ارسال ناموفق ❌",
                 Toast.LENGTH_SHORT
             ).show()
         }
