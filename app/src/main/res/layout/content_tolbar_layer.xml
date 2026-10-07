@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/re_tolbar"
+    android:background="@null"
+    android:layoutDirection="ltr"
+    android:layout_height="match_parent">
+
+    <com.jgabrielfreitas.core.BlurImageView
+        android:layout_width="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/back_main_wight"
+        android:id="@+id/img_background"
+        android:layout_height="match_parent"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_marginTop="20dp"
+        android:id="@+id/li_title"
+        android:gravity="center"
+        android:layout_height="120dp">
+
+        <TextView
+            android:layout_width="180dp"
+            android:id="@+id/txt_title"
+            android:layout_marginRight="-50dp"
+            android:textStyle="bold"
+            android:shadowColor="@color/black"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:paddingRight="25dp"
+            android:textSize="20sp"
+            android:text="@string/shop"
+            android:gravity="center"
+            android:background="@drawable/long_btn"
+            android:layout_height="80dp"/>
+
+        <ImageView
+            android:layout_width="100dp"
+            android:id="@+id/img_title"
+            android:src="@drawable/sandogh"
+            android:layout_height="100dp"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content">
+
+
+        <ImageView
+            android:id="@+id/img_close"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:src="@drawable/close_icon" />
+
+        <ImageView
+            android:id="@+id/img_back"
+            android:visibility="visible"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:src="@drawable/back_icon" />
+
+
+    </LinearLayout>
+
+
+
+
+</RelativeLayout>

@@ -1,0 +1,117 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.game.education'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "com.game.education"
+        minSdk 23
+        targetSdk 34
+        versionCode 6
+        versionName "1.1.2"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        def marketApplicationId = "ir.mservices.market"
+        def marketBindAddress = "ir.mservices.market.InAppBillingService.BIND"
+        manifestPlaceholders = [
+                marketApplicationId: "${marketApplicationId}",
+                marketBindAddress  : "${marketBindAddress}",
+                marketPermission   : "${marketApplicationId}.BILLING"
+        ]
+
+        buildConfigField "String", "IAB_PUBLIC_KEY", "\"GAPGPTMASKTOKENi7vglltn36X0X\""
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
+    }
+
+    packagingOptions {
+        resources {
+            excludes += [
+                    'META-INF/NOTICE.md',
+                    'META-INF/LICENSE.md',
+                    'META-INF/LICENSE.txt',
+                    'META-INF/NOTICE.txt',
+                    'META-INF/INDEX.LIST',
+                    'META-INF/mailcap',
+                    'META-INF/mailcap.default',
+                    'META-INF/mimetypes.default'
+            ]
+        }
+    }
+}
+
+dependencies {
+    // Core & UI
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.activity:activity-ktx:1.8.2'
+
+    // Coroutines & Lifecycle
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
+
+    // JavaMail (برای ارسال لاگ‌ها با ایمیل در Background)
+    implementation 'com.sun.mail:android-mail:1.6.7'
+    implementation 'com.sun.mail:android-activation:1.6.7'
+
+    // Retrofit2 & Network
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
+
+    // Tapsell+
+    implementation 'ir.tapsell.plus:tapsell-plus-sdk-android:2.1.6'
+
+    // Custom Fonts
+    implementation 'io.github.inflationx:viewpump:2.0.3'
+    implementation 'io.github.inflationx:calligraphy3:3.1.1'
+
+    // Glide & Animations
+    implementation 'com.github.bumptech.glide:glide:4.13.2'
+    implementation 'com.daimajia.androidanimations:library:2.4@aar'
+    implementation 'com.airbnb.android:lottie:6.0.0'
+    implementation 'com.github.jgabrielfreitas:BlurImageView:1.0.1'
+
+    // Market & In-App Billing (نیاز به مخزن JitPack در settings.gradle)
+    implementation 'com.github.myketstore:myket-billing-client:1.6'
+
+    // Google Services
+    implementation 'com.google.android.gms:play-services-auth:20.5.0'
+
+    // Image Picker
+    implementation 'com.github.Drjacky:ImagePicker:2.3.22'
+
+    // Test
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+}

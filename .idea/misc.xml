@@ -1,0 +1,98 @@
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable-xhdpi/back_cricle.xml" value="0.64875" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable-xhdpi/word_un_select.xml" value="0.64875" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable-xxhdpi/back_cricle.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/back_coin.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/back_cricle.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/back_fade.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/back_shaype.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/bordar_menu.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/ic_baseline_close_24.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/ic_baseline_close_black.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/ic_baseline_menu_24.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/ic_baseline_person_24.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/ic_baseline_person_pin_24.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/ic_call_chat_messenger_whatsapp_whatsapp_logo_icon.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/ic_email_letter_mail_message_icon.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/ic_instagram_icon.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/ic_local_phone_icon.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/ic_round_arrow_back_ios_new_24.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/ic_telegram_plane_icon.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/shape_progress_bar.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/shape_text.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/word_select.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/word_select_1.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/word_select_2.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/word_select_3.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/word_select_4.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/word_select_5.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/drawable/word_un_select.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/activity_badges.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/activity_bases.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/activity_categories.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/activity_chapters.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/activity_game.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/activity_loading.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/activity_main.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/activity_profile.xml" value="0.24010416666666667" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/activity_shop.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/activity_splash.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/activity_titles.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/content_main.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/content_menu.xml" value="0.24010416666666667" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/content_register.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/content_tolbar.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/content_tolbar_layer.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/custom_answer.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/custom_badge.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/custom_blur.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/custom_category.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/custom_item.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/custom_language.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/custom_level.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/custom_point.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/custom_shop.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/custom_show_answer.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/dialog.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/dialog_about.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/dialog_badge.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/dialog_report.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/dialog_select_avatar.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/dialog_seting.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/dialog_signin.xml" value="0.24010416666666667" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/dialog_status.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/dialog_version.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/dialog_win.xml" value="0.24010416666666667" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/layout/nav_header_main.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/menu/main_drawer.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Amirza/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Game Sentence/Amirza/app/src/main/res/drawable/back_cricle.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Game Sentence/Amirza/app/src/main/res/drawable/back_fade.xml" value="0.2703125" />
+        <entry key="..\:/AndroidBacup/Customer project/Game Sentence/Amirza/app/src/main/res/layout/activity_bases.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Game Sentence/Amirza/app/src/main/res/layout/activity_main.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Game Sentence/Amirza/app/src/main/res/layout/activity_titles.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Game Sentence/Amirza/app/src/main/res/layout/content_register.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Game Sentence/Amirza/app/src/main/res/layout/content_tolbar_layer.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Game Sentence/Amirza/app/src/main/res/layout/custom_category.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Game Sentence/Amirza/app/src/main/res/layout/custom_titles.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Game Sentence/Amirza/app/src/main/res/layout/dialog_about.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Game Sentence/Amirza/app/src/main/res/layout/dialog_private.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Game Sentence/Amirza/app/src/main/res/layout/dialog_signin.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Game Sentence/Amirza/app/src/main/res/layout/dialog_status.xml" value="0.25416666666666665" />
+        <entry key="..\:/AndroidBacup/Customer project/Game Sentence/Amirza/app/src/main/res/layout/dialog_win.xml" value="0.25416666666666665" />
+      </map>
+    </option>
+  </component>
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="jbr-21" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

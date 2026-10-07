@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/re_up"
+    android:layoutDirection="ltr"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:gravity="center"
+        android:background="@drawable/frameerrorseyf"
+        android:layout_height="500dp">
+
+
+        <TextView
+            android:layout_width="180dp"
+            android:id="@+id/txt_error_1"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:text="@string/error_1"
+            android:background="@drawable/errbut1"
+            android:layout_height="61dp"/>
+
+        <TextView
+            android:layout_width="180dp"
+            android:id="@+id/txt_error_2"
+            android:layout_marginTop="15dp"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:text="@string/error_2"
+            android:background="@drawable/errbut2"
+            android:layout_height="61dp"/>
+
+        <TextView
+            android:layout_width="180dp"
+            android:id="@+id/txt_error_3"
+            android:layout_marginTop="15dp"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:text="@string/error_3"
+            android:background="@drawable/errbut3"
+            android:layout_height="61dp"/>
+
+        <TextView
+            android:layout_width="180dp"
+            android:id="@+id/txt_error_4"
+            android:layout_marginTop="15dp"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:text="@string/error_4"
+            android:background="@drawable/errbut4"
+            android:layout_height="61dp"/>
+
+        <EditText
+            android:layout_width="180dp"
+            android:id="@+id/edt_report"
+            android:layout_marginTop="15dp"
+            android:inputType="text"
+            android:gravity="center"
+            android:maxLength="100"
+            android:background="@drawable/errbut5"
+            android:paddingRight="20dp"
+            android:paddingLeft="20dp"
+            android:textColorHint="@color/white"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:hint="@string/error_5"
+            android:layout_height="61dp"/>
+
+        <Button
+            android:layout_width="180dp"
+            android:id="@+id/btn_send"
+            android:shadowColor="@color/black"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
+            android:textAllCaps="true"
+            android:backgroundTint="@color/purple_500"
+            android:visibility="visible"
+            android:layout_marginTop="15dp"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:text="@string/send"
+            android:layout_height="61dp"/>
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:layout_marginBottom="15dp"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/img_close"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:src="@drawable/close_icon" />
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>

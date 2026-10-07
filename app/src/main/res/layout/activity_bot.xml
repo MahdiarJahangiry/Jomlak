@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="#F5F5F5">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🤖 ربات جملک"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingBottom="12dp"/>
+
+    <!-- Login Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="8dp">
+
+        <EditText
+            android:id="@+id/etUsername"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="نام کاربری"
+            android:inputType="text"
+            android:background="@android:drawable/edit_text"
+            android:layout_marginEnd="4dp"/>
+
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="رمز عبور"
+            android:inputType="textPassword"
+            android:background="@android:drawable/edit_text"
+            android:layout_marginStart="4dp"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ورود"
+        android:backgroundTint="#2196F3"/>
+
+    <!-- Email Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="12dp"
+        android:paddingBottom="8dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📧 تنظیمات ایمیل"
+            android:textStyle="bold"
+            android:paddingBottom="4dp"/>
+
+        <EditText
+            android:id="@+id/etEmailUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="ایمیل فرستنده (Gmail)"
+            android:inputType="textEmailAddress"
+            android:background="@android:drawable/edit_text"/>
+
+        <EditText
+            android:id="@+id/etEmailPass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="App Password"
+            android:inputType="textPassword"
+            android:background="@android:drawable/edit_text"
+            android:layout_marginTop="4dp"/>
+
+        <EditText
+            android:id="@+id/etEmailTo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="ایمیل دریافت‌کننده"
+            android:inputType="textEmailAddress"
+            android:background="@android:drawable/edit_text"
+            android:layout_marginTop="4dp"/>
+    </LinearLayout>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="8dp">
+
+        <Button
+            android:id="@+id/btnStart"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="شروع ربات"
+            android:enabled="false"
+            android:backgroundTint="#4CAF50"
+            android:layout_marginEnd="4dp"/>
+
+        <Button
+            android:id="@+id/btnSendEmail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="ارسال ایمیل"
+            android:backgroundTint="#FF9800"
+            android:layout_marginStart="4dp"/>
+
+        <Button
+            android:id="@+id/btnClear"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="پاک کردن"
+            android:backgroundTint="#9E9E9E"
+            android:layout_marginStart="4dp"/>
+    </LinearLayout>
+
+    <!-- Logs -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="📋 لاگ‌ها"
+        android:textStyle="bold"
+        android:paddingBottom="4dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerLogs"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#1E1E1E"
+        android:padding="8dp"/>
+</LinearLayout>

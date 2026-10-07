@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="100dp"
+    android:layoutDirection="ltr"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/re_Item"
+    android:layout_height="80dp">
+
+
+    <ImageView
+        android:layout_width="80dp"
+        android:id="@+id/img_badge"
+        android:layout_centerInParent="true"
+        android:src="@drawable/badg_1"
+        android:layout_height="80dp"/>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="80dp"
+        android:id="@+id/card_badge"
+        android:layout_centerInParent="true"
+        app:cardBackgroundColor="#B3000000"
+        app:cardCornerRadius="40dp"
+        android:layout_height="80dp">
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:textSize="16sp"
+            android:id="@+id/txt_badge"
+            android:textColor="@color/white"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="400 امتیاز"
+            android:layout_height="wrap_content"/>
+
+
+
+    </androidx.cardview.widget.CardView>
+
+
+
+
+</RelativeLayout>

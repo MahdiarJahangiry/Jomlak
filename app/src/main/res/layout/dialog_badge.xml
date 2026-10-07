@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/re_up"
+    android:layoutDirection="ltr"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="wrap_content">
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_marginTop="40dp"
+        android:gravity="center_horizontal"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="250dp"
+            android:id="@+id/img_share"
+            android:src="@drawable/badg_1"
+            android:layout_height="250dp"/>
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:text="200 امتیاز"
+            android:id="@+id/txt_share"
+            android:layout_marginTop="20dp"
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:layout_height="wrap_content"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:id="@+id/btn_share"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:shadowColor="@color/black"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:text="@string/share"
+            android:background="@drawable/order_1"
+            android:layout_height="wrap_content"/>
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/img_close"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:src="@drawable/close_icon" />
+
+
+    </LinearLayout>
+
+
+</RelativeLayout>

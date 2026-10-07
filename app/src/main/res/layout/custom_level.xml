@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:id="@+id/card_level"
+    android:orientation="horizontal"
+    android:layoutDirection="ltr"
+    android:gravity="center"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_marginLeft="10dp"
+    android:layout_height="wrap_content">
+
+
+    <TextView
+        android:layout_width="35dp"
+        android:id="@+id/txt_level"
+        android:layout_marginRight="-15dp"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:paddingRight="2dp"
+        android:textColor="@color/white"
+        tools:text="1"
+        android:layout_height="35dp"/>
+
+
+    <ImageView
+        android:layout_width="75dp"
+        android:id="@+id/img_pic"
+        android:layout_height="75dp"/>
+
+
+
+
+</LinearLayout>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/re_up"
+    android:layout_height="wrap_content">
+
+    <include layout="@layout/content_tolbar_layer" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_margin="15dp"
+        android:gravity="center"
+        android:layout_height="match_parent">
+
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_marginTop="25dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:id="@+id/edt_email"
+            android:inputType="textEmailAddress"
+            android:background="@drawable/bordar_menu"
+            android:paddingRight="20dp"
+            android:paddingLeft="20dp"
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:hint="@string/username"
+            android:layout_height="55dp"/>
+
+
+        <EditText
+            android:layout_width="match_parent"
+            android:id="@+id/edt_pass"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="15dp"
+            android:inputType="textPassword"
+            android:gravity="right|center"
+            android:background="@drawable/bordar_menu"
+            android:paddingRight="20dp"
+            android:paddingLeft="20dp"
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:hint="@string/password"
+            android:layout_height="55dp"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:id="@+id/edt_code"
+            android:inputType="number"
+            android:background="@drawable/bordar_menu"
+            android:paddingRight="20dp"
+            android:paddingLeft="20dp"
+            android:textColorHint="@color/black"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:hint="@string/code_moaref"
+            android:layout_height="55dp"/>
+
+
+
+        <Button
+            android:layout_width="match_parent"
+            android:id="@+id/btn_signin"
+            android:backgroundTint="@color/purple_500"
+            android:visibility="visible"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:layout_marginTop="15dp"
+            android:textSize="18sp"
+            android:shadowColor="@color/black"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
+            android:textAllCaps="true"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:text="@string/login_register"
+            android:layout_height="60dp"/>
+
+
+
+
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>
