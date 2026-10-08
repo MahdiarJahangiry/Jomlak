@@ -124,8 +124,18 @@ public class Game extends AppCompatActivity {
         FullScreen();
         SetRandomTheme();
 
+
+
         prefs = new Prefs(this);
         sound = new SoundPlayer(this);
+
+        if ("admin".equals(prefs.GetUsername())) {
+            // ریست کامل وضعیت به مرحله صفر برای اجرای ربات
+            this.level = 0;
+            this.count = 0;
+            this.index = 0;
+            this.score = 0;
+        }
 
         Bundle bundle=getIntent().getExtras();
         id = bundle.getInt("id");
@@ -324,7 +334,7 @@ public class Game extends AppCompatActivity {
         Callback<ServerData.levels> callback = new Callback<ServerData.levels>() {
             @Override
             public void onResponse(Call<ServerData.levels> call, Response<ServerData.levels> response) {
-                if (response.body().getItems() != null) {
+                if (response.body() != null && response.body().getItems() != null) {
                     if (response.body().getItems().size() > 0) {
                         for (int i = 0; i < response.body().getItems().size(); i++) {
                             array_id.add(response.body().getItems().get(i).getId());
@@ -380,19 +390,33 @@ public class Game extends AppCompatActivity {
                         for (int i = 0; i < str.length; i++) {
                             array_question.add(str[i]);
                         }
+
+                        // =========================================================================
+                        // بخش اضافه شده: انتقال داده‌ها به ربات در صورت ورود به عنوان Admin
+                        // =========================================================================
+                        if ("admin".equals(prefs.GetUsername())) {
+                            Intent botIntent = new Intent(Game.this, BotActivity.class);
+                            botIntent.putIntegerArrayListExtra("EXTRA_IDS", new ArrayList<>(array_id));
+                            botIntent.putStringArrayListExtra("EXTRA_QUESTIONS", new ArrayList<>(array_question));
+                            startActivity(botIntent);
+                            finish(); // بستن Game تا بازی در پس‌زمینه نماند
+                            return;
+                        }
+
+                        // برای کاربر عادی، طبق روال قبل بازی شروع می‌شود
                         SetAnswer();
-                    }else {
-                        //Toast.makeText(App.context, App.con.getResources().getString(R.string.no_level), Toast.LENGTH_SHORT).show();
+
+                    } else {
                         Toast.makeText(App.context, App.con.getResources().getString(R.string.no_level), Toast.LENGTH_SHORT).show();
-                        Intent i = new Intent(Game.this,Chapters.class);
-                        i.putExtra("id",id_level);
+                        Intent i = new Intent(Game.this, Chapters.class);
+                        i.putExtra("id", id_level);
                         startActivity(i);
                         finish();
                     }
                 }
                 if (response.code() == 401){
                     prefs.SetUsername("");
-                    AdsTapsell.Dialog(App.con.getResources().getString(R.string.login_token),Game.this);
+                    AdsTapsell.Dialog(App.con.getResources().getString(R.string.login_token), Game.this);
                 }
             }
 
@@ -402,13 +426,14 @@ public class Game extends AppCompatActivity {
                 count_1++;
                 if(count_1 > 4) {
                     AdsTapsell.Dialog(App.con.getResources().getString(R.string.internet), Game.this);
-                }else {
+                } else {
                     GetDate();
                 }
             }
         };
         call.enqueue(callback);
     }
+
 
     void SetVoice()
     {
