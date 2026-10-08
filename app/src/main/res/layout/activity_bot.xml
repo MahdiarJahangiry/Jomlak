@@ -4,7 +4,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="12dp"
-    android:background="#F5F5F5">
+    android:background="#F5F5F5"
+    android:layoutDirection="rtl"
+    android:gravity="start">
 
     <TextView
         android:layout_width="match_parent"
@@ -15,38 +17,65 @@
         android:gravity="center"
         android:paddingBottom="12dp"/>
 
+    <!-- بخش ورود -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingBottom="8dp">
 
-        <EditText
-            android:id="@+id/etUsername"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="نام کاربری"
-            android:inputType="text"
-            android:layout_marginEnd="4dp"/>
+            android:orientation="vertical"
+            android:layout_marginEnd="4dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="نام کاربری ربات:"
+                android:textSize="12sp"
+                android:layout_gravity="start"/>
+            <EditText
+                android:id="@+id/etUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:hint="Username"
+                android:inputType="text"/>
+        </LinearLayout>
 
-        <EditText
-            android:id="@+id/etPassword"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="رمز عبور"
-            android:inputType="textPassword"
-            android:layout_marginStart="4dp"/>
+            android:orientation="vertical"
+            android:layout_marginStart="4dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="رمز عبور ربات:"
+                android:textSize="12sp"
+                android:layout_gravity="start"/>
+            <EditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:hint="Password"
+                android:inputType="textPassword"/>
+        </LinearLayout>
     </LinearLayout>
 
     <Button
         android:id="@+id/btnLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:text="ورود"
         android:backgroundTint="#2196F3"/>
 
+    <!-- بخش تنظیمات ایمیل -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -59,32 +88,56 @@
             android:layout_height="wrap_content"
             android:text="📧 تنظیمات ایمیل"
             android:textStyle="bold"
-            android:paddingBottom="4dp"/>
+            android:textSize="16sp"
+            android:paddingBottom="8dp"
+            android:gravity="start"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ایمیل فرستنده (Gmail):"
+            android:textSize="12sp"
+            android:layout_gravity="start"/>
         <EditText
             android:id="@+id/etEmailUser"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="ایمیل فرستنده (Gmail)"
+            android:minHeight="48dp"
+            android:hint="example@gmail.com"
             android:inputType="textEmailAddress"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="رمز اپلیکیشن (16 کاراکتری):"
+            android:textSize="12sp"
+            android:layout_gravity="start"/>
         <EditText
             android:id="@+id/etEmailPass"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="App Password (16 کاراکتر)"
-            android:inputType="textPassword"
-            android:layout_marginTop="4dp"/>
+            android:minHeight="48dp"
+            android:hint="xxxx xxxx xxxx xxxx"
+            android:inputType="textPassword"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="ایمیل دریافت‌کننده:"
+            android:textSize="12sp"
+            android:layout_gravity="start"/>
         <EditText
             android:id="@+id/etEmailTo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="ایمیل دریافت‌کننده"
-            android:inputType="textEmailAddress"
-            android:layout_marginTop="4dp"/>
+            android:minHeight="48dp"
+            android:hint="target@example.com"
+            android:inputType="textEmailAddress"/>
     </LinearLayout>
 
+    <!-- دکمه‌ها -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -96,7 +149,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="شروع ربات"
+            android:minHeight="48dp"
+            android:text="شروع"
             android:enabled="false"
             android:backgroundTint="#4CAF50"
             android:layout_marginEnd="4dp"/>
@@ -106,7 +160,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="ارسال ایمیل"
+            android:minHeight="48dp"
+            android:text="ارسال"
             android:backgroundTint="#FF9800"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"/>
@@ -116,6 +171,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:minHeight="48dp"
             android:text="پاک کردن"
             android:backgroundTint="#9E9E9E"
             android:layout_marginStart="4dp"/>
