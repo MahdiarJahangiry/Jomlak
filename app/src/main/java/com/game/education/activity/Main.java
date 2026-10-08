@@ -138,15 +138,16 @@ public class Main extends AppCompatActivity {
                 }
             }
         });
-        img_play = findViewById(R.id.img_play);
-        //img_play.setOnClickListener(new View.OnClickListener() {
-        //   @Override
-        //  public void onClick(View view) {
-        //      sound.PlayClick();
-        //      Intent i = new Intent(Main.this, Titles.class);
-        //    startActivity(i);
-    //}
 
+        img_play = findViewById(R.id.img_play);
+        img_play.setOnClickListener(new View.OnClickListener() {
+           @Override
+          public void onClick(View view) {
+              sound.PlayClick();
+              Intent i = new Intent(Main.this, Titles.class);
+            startActivity(i);
+            }
+        });
 
             LinearLayout li_bot = findViewById(R.id.li_bot);
             li_bot.setOnClickListener(new View.OnClickListener() {
@@ -157,11 +158,15 @@ public class Main extends AppCompatActivity {
                     startActivity(i);
                 }
             });
-                                    }
+
+        GetAbout();
+        GetVersion();
 
 
-        //GetAbout();
-        // GetVersion();
+    }
+
+
+
 
 
 
