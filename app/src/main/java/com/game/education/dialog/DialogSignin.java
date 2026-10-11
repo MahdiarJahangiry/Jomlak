@@ -155,6 +155,10 @@ public class DialogSignin {
             @Override
             public void onResponse(Call<ServerData.Message> call, Response<ServerData.Message> response)
             {
+                android.util.Log.d("LOGIN_DEBUG", "Code: " + response.code());
+                if (response.isSuccessful() && response.body() != null) {
+                    android.util.Log.d("LOGIN_DEBUG", "Success: " + response.body().getSuccess());
+                    android.util.Log.d("LOGIN_DEBUG", "Error Msg: " + response.body().getError());
                 if (response.code() == 200) {
                     if (response.body().getSuccess() != null) {
                         if (response.body().getSuccess()) {
@@ -179,10 +183,14 @@ public class DialogSignin {
                     new DialogRegister(activity,type,googleHelper);
                     AdsTapsell.Dialog(App.con.getResources().getString(R.string.login_token),activity);
                 }
+                } else {
+                    android.util.Log.d("LOGIN_DEBUG", "Response not successful or body null");
+                }
             }
 
             @Override
             public void onFailure(Call<ServerData.Message> call, Throwable t) {
+                android.util.Log.e("LOGIN_DEBUG", "Network Failed: " + t.getMessage(), t);
                 Log.e(App.LogName, t.toString());
                 AdsTapsell.Dialog(App.con.getResources().getString(R.string.internet),activity);
             }
