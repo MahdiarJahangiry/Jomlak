@@ -1,20 +1,22 @@
 package com.game.education.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 import android.widget.VideoView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.game.education.R;
 
@@ -22,51 +24,115 @@ import io.github.inflationx.viewpump.ViewPumpContextWrapper;
 
 public class Loading extends AppCompatActivity {
 
-    VideoView video_player;
-    ProgressBar progressBar;
+    private VideoView videoPlayer;
+    private ProgressBar progressBar;
+    private ValueAnimator progressAnimator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        // تنظیمات تمام صفحه برای نسخه‌های مختلف
+        applyFullScreen();
         setContentView(R.layout.activity_loading);
 
-        FullScreen();
+        initViews();
+        setupVideo();
+        startLoadingAnimation();
+    }
 
-        video_player = findViewById(R.id.video_player);
+    private void initViews() {
+        videoPlayer = findViewById(R.id.video_player);
         progressBar = findViewById(R.id.progressBar);
 
-        video_player.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.loading));
-        video_player.start();
+        // استفاده از ContextCompat برای جلوگیری از Warning منسوخ شدن getDrawable
+        progressBar.setProgressDrawable(ContextCompat.getDrawable(this, R.drawable.shape_progress_bar));
+    }
 
+    private void setupVideo() {
+        Uri videoUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.loading);
+        videoPlayer.setVideoURI(videoUri);
 
-        Drawable myIcon = getResources().getDrawable(R.drawable.shape_progress_bar);
-        progressBar.setProgressDrawable(myIcon);
-
-        ValueAnimator animator = ValueAnimator.ofInt(0, progressBar.getMax());
-        animator.setDuration(5000);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                progressBar.setProgress((Integer) valueAnimator.getAnimatedValue());
-            }
+        // مدیریت چرخه حیات ویدیو (لوپ کردن در صورت نیاز یا هندل کردن اتمام)
+        videoPlayer.setOnPreparedListener(mp -> {
+            mp.setLooping(true);
+            videoPlayer.start();
         });
-        animator.addListener(new AnimatorListenerAdapter() {
+    }
+
+    private void startLoadingAnimation() {
+        // بهینه سازی انیمیشن پروگرس بار
+        progressAnimator = ValueAnimator.ofInt(0, progressBar.getMax());
+        progressAnimator.setDuration(5000);
+        progressAnimator.addUpdateListener(animation ->
+                progressBar.setProgress((int) animation.getAnimatedValue())
+        );
+
+        progressAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                Intent i = new Intent(Loading.this,Main.class);
-                startActivity(i);
-                finish();
+                if (!isFinishing()) {
+                    navigateToMain();
+                }
             }
         });
-        animator.start();
+        progressAnimator.start();
+    }
 
-    }//main
+    private void navigateToMain() {
+        Intent intent = new Intent(Loading.this, Main.class);
+        startActivity(intent);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        finish();
+    }
 
+    private void applyFullScreen() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // متد جدید برای اندروید 11 به بالا
+            getWindow().setDecorFitsSystemWindows(false);
+            WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+                controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+            }
+        } else {
+            // متد قدیمی برای اندرویدهای پایین‌تر
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            View decorView = getWindow().getDecorView();
+            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(uiOptions);
+        }
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (videoPlayer != null && !videoPlayer.isPlaying()) {
+            videoPlayer.start();
+        }
+        applyFullScreen();
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (videoPlayer != null) {
+            videoPlayer.pause();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // جلوگیری از نشت حافظه با متوقف کردن انیمیشن
+        if (progressAnimator != null) {
+            progressAnimator.removeAllUpdateListeners();
+            progressAnimator.cancel();
+        }
+    }
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -74,23 +140,10 @@ public class Loading extends AppCompatActivity {
     }
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
-        FullScreen();
-    }
-
-    public void FullScreen() {
-        View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-        decorView.setSystemUiVisibility(uiOptions);
-    }
-
-    @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
-            FullScreen();
+            applyFullScreen();
         }
     }
-
-}//class
+}

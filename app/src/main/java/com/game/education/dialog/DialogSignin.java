@@ -2,18 +2,24 @@ package com.game.education.dialog;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.game.education.App;
@@ -29,45 +35,51 @@ import com.game.education.model.Menu;
 import com.game.education.model.Prefs;
 import com.game.education.model.SoundPlayer;
 import com.jgabrielfreitas.core.BlurImageView;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 public class DialogSignin {
 
-    Dialog dialog_signin;
-    Prefs prefs;
-    SoundPlayer sound;
-    Menu menu;
-    int count = 0;
+    private static final String TAG = "DIALOG_SIGNIN";
+    private final Dialog dialog_signin;
+    private final Prefs prefs;
+    private final SoundPlayer sound;
+    private final Menu menu;
+    private final ApiInterface apiInterface;
+    private final Activity activity;
+    private int backupRetryCount = 0;
 
-    public DialogSignin(Activity activity, int co, String type, GoogleLoginHelper googleHelper){
+    public DialogSignin(Activity activity, int co, String type, GoogleLoginHelper googleHelper) {
+        this.activity = activity;
+        this.prefs = new Prefs(activity);
+        this.sound = new SoundPlayer(activity);
+        this.menu = new Menu(activity);
+        this.apiInterface = RetrofitClient.getRetrofitInstance().create(ApiInterface.class);
+
         dialog_signin = new Dialog(activity);
         dialog_signin.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog_signin.setContentView(R.layout.dialog_signin);
         dialog_signin.setCancelable(false);
-        dialog_signin.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        sound = new SoundPlayer(activity);
-        prefs = new Prefs(activity);
-        menu = new Menu(activity);
+        if (dialog_signin.getWindow() != null) {
+            dialog_signin.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
 
         TextView txt_title = dialog_signin.findViewById(R.id.txt_title);
-        if (co == 1){
-            txt_title.setText(App.con.getResources().getString(R.string.signup));
-        }else {
-            txt_title.setText(App.con.getResources().getString(R.string.signin));
+        if (co == 1) {
+            txt_title.setText(activity.getString(R.string.signup));
+        } else {
+            txt_title.setText(activity.getString(R.string.signin));
         }
 
         ImageView img_back = dialog_signin.findViewById(R.id.img_back);
-        img_back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-                new DialogRegister(activity,type,googleHelper);
-            }
+        img_back.setOnClickListener(v -> {
+            hideKeyboard();
+            dismiss();
+            new DialogRegister(activity, type, googleHelper);
         });
+
         RelativeLayout re_up = dialog_signin.findViewById(R.id.re_up);
         re_up.setVisibility(View.INVISIBLE);
         BlurImageView img_background = dialog_signin.findViewById(R.id.img_background);
@@ -76,53 +88,60 @@ public class DialogSignin {
         img_title.setImageResource(R.drawable.profileseyf);
         ImageView img_close = dialog_signin.findViewById(R.id.img_close);
         img_close.setVisibility(View.GONE);
-        img_close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sound.PlayClick();
-                CloseDialog(dialog_signin,re_up);
-            }
+        img_close.setOnClickListener(view -> {
+            sound.PlayClick();
+            hideKeyboard();
+            // رفع هشدار پارامتر استفاده نشده (حذف پارامتر اضافه دیالوگ)
+            CloseDialog(re_up);
         });
 
         EditText edt_code = dialog_signin.findViewById(R.id.edt_code);
-        edt_code.setHint(App.con.getResources().getString(R.string.code_moaref));
-        if (co != 1){
+        edt_code.setHint(activity.getString(R.string.code_moaref));
+        if (co != 1) {
             edt_code.setVisibility(View.GONE);
         }
+
         EditText edt_email = dialog_signin.findViewById(R.id.edt_email);
-        edt_email.setHint(App.con.getResources().getString(R.string.username));
+        edt_email.setHint(activity.getString(R.string.username));
         EditText edt_pass = dialog_signin.findViewById(R.id.edt_pass);
-        edt_pass.setHint(App.con.getResources().getString(R.string.password));
+        edt_pass.setHint(activity.getString(R.string.password));
         Button btn_signin = dialog_signin.findViewById(R.id.btn_signin);
-        btn_signin.setText(App.con.getResources().getString(R.string.login_register));
-        btn_signin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String username = edt_email.getText().toString().trim();
-                String pass = edt_pass.getText().toString().trim();
-                if (username.length() >= 5) {
-                    sound.PlayClick();
-                    if(pass.length() > 7){
-                        if (co == 1) {
-                            Register(username, pass,edt_code.getText().toString(), activity, type,googleHelper);
-                        }else {
-                            Login(username,pass,activity,type,googleHelper);
-                        }
-                    }else {
-                        AdsTapsell.Dialog(App.con.getResources().getString(R.string.no_pass),activity);
-                    }
-                }else {
-                    AdsTapsell.Dialog("نام کاربری حداقل 5 کاراکتر باید باشد",activity);
-                }
+        btn_signin.setText(activity.getString(R.string.login_register));
+
+        btn_signin.setOnClickListener(view -> {
+            String username = edt_email.getText().toString().trim();
+            String pass = edt_pass.getText().toString().trim();
+
+            if (username.length() < 4) {
+                AdsTapsell.Dialog("نام کاربری حداقل باید ۴ کاراکتر باشد", activity);
+                return;
+            }
+            if (pass.length() < 5) {
+                AdsTapsell.Dialog(App.con.getResources().getString(R.string.no_pass),activity);
+                return;
+            }
+
+            hideKeyboard();
+            sound.PlayClick();
+            btn_signin.setEnabled(false);
+
+            if (co == 1) {
+                Register(username, pass, edt_code.getText().toString().trim(), type, googleHelper, btn_signin);
+            } else {
+                Login(username, pass, type, googleHelper, btn_signin);
             }
         });
 
+        if (dialog_signin.getWindow() != null) {
+            int w = activity.getResources().getDisplayMetrics().widthPixels;
+            dialog_signin.getWindow().setLayout(w, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
 
-        int w = activity.getResources().getDisplayMetrics().widthPixels;
-        dialog_signin.getWindow().setLayout(w, ViewGroup.LayoutParams.WRAP_CONTENT);
-        dialog_signin.show();
+        if (!activity.isFinishing() && !activity.isDestroyed()) {
+            dialog_signin.show();
+        }
 
-        new Handler().postDelayed(() -> {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
             re_up.setVisibility(View.VISIBLE);
             YoYo.with(Techniques.ZoomIn)
                     .duration(500)
@@ -131,221 +150,224 @@ public class DialogSignin {
         }, 100);
     }
 
-    private void CloseDialog(Dialog dialog, RelativeLayout re_up)
-    {
+    private void hideKeyboard() {
+        try {
+            View view = dialog_signin.getCurrentFocus();
+            if (view == null && activity != null) {
+                view = activity.getCurrentFocus();
+            }
+            if (view != null) {
+                InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void CloseDialog(RelativeLayout re_up) {
         YoYo.with(Techniques.ZoomOut)
-                .duration(500)
+                .duration(400)
                 .repeat(0)
                 .playOn(re_up);
-        new Handler().postDelayed(() -> {
-            dialog.dismiss();
-        }, 400);
+        new Handler(Looper.getMainLooper()).postDelayed(this::dismiss, 350);
     }
 
-    public void dismiss(){
-        dialog_signin.dismiss();
+    public void dismiss() {
+        try {
+            if (dialog_signin != null && dialog_signin.isShowing()) {
+                dialog_signin.dismiss();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Dismiss dialog error: " + e.getMessage());
+        }
     }
 
-    public void Register(String username, String pass,String code, Activity activity, String type, GoogleLoginHelper googleHelper)
-    {
-        Retrofit retrofit = RetrofitClient.getRetrofitInstance();
-        ApiInterface apiInterface = retrofit.create(ApiInterface.class);
-        Call<ServerData.Message> call = apiInterface.register(username,pass,code);
-        Callback<ServerData.Message> callback = new Callback<ServerData.Message>() {
+    public void Register(String username, String pass, String code, String type, GoogleLoginHelper googleHelper, Button actionBtn) {
+        Call<ServerData.Message> call = apiInterface.register(username, pass, code);
+        call.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<ServerData.Message> call, Response<ServerData.Message> response)
-            {
-                android.util.Log.d("LOGIN_DEBUG", "Code: " + response.code());
-                if (response.isSuccessful() && response.body() != null) {
-                    android.util.Log.d("LOGIN_DEBUG", "Success: " + response.body().getSuccess());
-                    android.util.Log.d("LOGIN_DEBUG", "Error Msg: " + response.body().getError());
-                if (response.code() == 200) {
-                    if (response.body().getSuccess() != null) {
-                        if (response.body().getSuccess()) {
-                            prefs.SetUsername(username);
-                            prefs.SetPass(pass);
-                            prefs.SaveGoogle(false);
-                            prefs.SaveCode(response.body().getResult().getAffiliateCode());
-                            prefs.SetToken(response.body().getResult().getToken());
-                            dismiss();
-                            changeCoin(App.Register,"add",type,activity);
+            public void onResponse(@NonNull Call<ServerData.Message> call, @NonNull Response<ServerData.Message> response) {
+                actionBtn.setEnabled(true);
+                Log.d(TAG, "Register Response Code: " + response.code());
 
-                        } else {
-                            AdsTapsell.Dialog(response.body().getError(), activity);
+                if (response.isSuccessful() && response.body() != null) {
+                    ServerData.Message body = response.body();
+                    if (Boolean.TRUE.equals(body.getSuccess()) && body.getResult() != null) {
+                        prefs.SetUsername(username);
+                        prefs.SetPass(pass);
+                        prefs.SaveGoogle(false);
+                        if (body.getResult().getAffiliateCode() != null) {
+                            prefs.SaveCode(body.getResult().getAffiliateCode());
                         }
-                    }else {
-                        AdsTapsell.Dialog(App.con.getResources().getString(R.string.internet),activity);
+                        if (body.getResult().getToken() != null) {
+                            prefs.SetToken(body.getResult().getToken());
+                        }
+                        dismiss();
+                        changeCoin(App.Register, "add", type);
+                        return;
+                    } else {
+                        String err = body.getError() != null ? body.getError() : "خطایی در ثبت‌نام رخ داد";
+                        AdsTapsell.Dialog(err, activity);
+                        return;
                     }
                 }
-                if (response.code() == 401){
+
+                if (response.code() == 401) {
                     prefs.SetUsername("");
                     dismiss();
-                    new DialogRegister(activity,type,googleHelper);
-                    AdsTapsell.Dialog(App.con.getResources().getString(R.string.login_token),activity);
-                }
+                    new DialogRegister(activity, type, googleHelper);
+                    AdsTapsell.Dialog(activity.getString(R.string.login_token), activity);
                 } else {
-                    android.util.Log.d("LOGIN_DEBUG", "Response not successful or body null");
+                    AdsTapsell.Dialog("خطای ارتباط با سرور: " + response.code(), activity);
                 }
             }
 
             @Override
-            public void onFailure(Call<ServerData.Message> call, Throwable t) {
-                android.util.Log.e("LOGIN_DEBUG", "Network Failed: " + t.getMessage(), t);
-                Log.e(App.LogName, t.toString());
-                AdsTapsell.Dialog(App.con.getResources().getString(R.string.internet),activity);
+            public void onFailure(@NonNull Call<ServerData.Message> call, @NonNull Throwable t) {
+                actionBtn.setEnabled(true);
+                Log.e(TAG, "Register failure: " + t.getMessage(), t);
+                AdsTapsell.Dialog(activity.getString(R.string.internet), activity);
             }
-        };
-        call.enqueue(callback);
+        });
     }
 
-    public void changeCoin(int amount, String typeCoin, String type, Activity activity){
-        CoinManager.addCoin(activity, amount,typeCoin, new CoinManager.CoinCallback() {
-
+    public void changeCoin(int amount, String typeCoin, String type) {
+        CoinManager.addCoin(activity, amount, typeCoin, new CoinManager.CoinCallback() {
             @Override
             public void onSuccess() {
-                AdsTapsell.Dialog(App.con.getResources().getString(R.string.register), activity);
+                AdsTapsell.Dialog(activity.getString(R.string.register), activity);
                 menu.SetCoin();
                 sound.PlayHint();
-                if(type.equals("main")){
+                if ("main".equals(type) && activity instanceof Main) {
                     ((Main) activity).li_register.setVisibility(View.GONE);
                 }
             }
 
             @Override
             public void onError(String error) {
-
+                Log.e(TAG, "Coin change error: " + error);
             }
         });
     }
 
-    public void Login(String username, String pass, Activity activity, String type, GoogleLoginHelper googleHelper)
-    {
-        Retrofit retrofit = RetrofitClient.getRetrofitInstance();
-        ApiInterface apiInterface = retrofit.create(ApiInterface.class);
-        Call<ServerData.Message> call = apiInterface.login(username,pass);
-        Callback<ServerData.Message> callback = new Callback<ServerData.Message>() {
+    public void Login(String username, String pass, String type, GoogleLoginHelper googleHelper, Button actionBtn) {
+        Call<ServerData.Message> call = apiInterface.login(username, pass);
+        call.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<ServerData.Message> call, Response<ServerData.Message> response)
-            {
-                if (response.code() == 200) {
-                    if (response.body().getSuccess() != null) {
-                        if (response.body().getSuccess()) {
-                            prefs.SetUsername(username);
-                            prefs.SetPass(pass);
-                            prefs.SaveGoogle(false);
-                            prefs.SaveCode(response.body().getResult().getAffiliateCode());
-                            prefs.SetToken(response.body().getResult().getToken());
-                            if(type.equals("main")){
-                                ((Main) activity).li_register.setVisibility(View.GONE);
-                            }
-                            GetBackupInfo(activity,googleHelper);
-                        } else {
-                            AdsTapsell.Dialog(response.body().getError(), activity);
-                        }
-                    } else {
-                        AdsTapsell.Dialog(App.con.getResources().getString(R.string.internet), activity);
-                    }
-                }
-                if (response.code() == 401){
-                    prefs.SetUsername("");
-                    dismiss();
-                    new DialogRegister(activity,type,googleHelper);
-                    AdsTapsell.Dialog(App.con.getResources().getString(R.string.login_token),activity);
-                }
-            }
+            public void onResponse(@NonNull Call<ServerData.Message> call, @NonNull Response<ServerData.Message> response) {
+                actionBtn.setEnabled(true);
+                Log.d(TAG, "Login Response Code: " + response.code());
 
-            @Override
-            public void onFailure(Call<ServerData.Message> call, Throwable t) {
-                Log.e(App.LogName, t.toString());
-                AdsTapsell.Dialog(App.con.getResources().getString(R.string.internet),activity);
-            }
-        };
-        call.enqueue(callback);
-    }
-
-    public void GetBackupInfo(Activity activity, GoogleLoginHelper googleHelper)
-    {
-        Retrofit retrofit = RetrofitClient.getRetrofitInstance();
-        ApiInterface apiInterface = retrofit.create(ApiInterface.class);
-        Call<ServerData.Message> call = apiInterface.backup_get(App.Token + prefs.GetToken());
-        Callback<ServerData.Message> callback = new Callback<ServerData.Message>() {
-            @Override
-            public void onResponse(Call<ServerData.Message> call, Response<ServerData.Message> response)
-            {
-                if (response.code() == 200) {
-                    if (response.body().getSuccess()) {
-                        if (response.body().getResult() != null) {
-                            /*if (response.body().getResult().getCoin() != null) {
-                                prefs.SetCoin(response.body().getResult().getCoin());
-                            }*/
-                            if (response.body().getResult().getScour_all() != null) {
-                                prefs.SetScourAll(response.body().getResult().getScour_all());
+                if (response.isSuccessful() && response.body() != null) {
+                    ServerData.Message body = response.body();
+                    if (Boolean.TRUE.equals(body.getSuccess())) {
+                        prefs.SetUsername(username);
+                        prefs.SetPass(pass);
+                        prefs.SaveGoogle(false);
+                        if (body.getResult() != null) {
+                            if (body.getResult().getAffiliateCode() != null) {
+                                prefs.SaveCode(body.getResult().getAffiliateCode());
                             }
-                            if (response.body().getResult().getScour_one() != null) {
-                                prefs.SetScourOne(response.body().getResult().getScour_one());
-                            }
-                            if (response.body().getResult().getScour_tow() != null) {
-                                prefs.SetScourTow(response.body().getResult().getScour_tow());
-                            }
-                            if (response.body().getResult().getScour_tree() != null) {
-                                prefs.SetScourTree(response.body().getResult().getScour_tree());
-                            }
-                            if (response.body().getResult().getScour_four() != null) {
-                                prefs.SetScourFour(response.body().getResult().getScour_four());
-                            }
-                            if (response.body().getResult().getUser() != null) {
-                                prefs.SetName(response.body().getResult().getUser());
-                            }
-                            if (response.body().getResult().getPath() != null) {
-                                prefs.SavePath(response.body().getResult().getPath());
-                            }
-                            if (response.body().getResult().getAvatar() != null) {
-                                prefs.SetAvatar(response.body().getResult().getAvatar());
-                            }
-                    /*if (response.body().getResult().getLang() != null) {
-                        prefs.SetLang(response.body().getResult().getLang());
-                        menu.SetLangouch(prefs.GetLang());
-                    }*/
-                            if (response.body().getResult().getCode() != null) {
-                                prefs.SaveCode(response.body().getResult().getCode());
-                            }
-                            if (response.body().getResult().getLevel() != null) {
-                                String[] str = response.body().getResult().getLevel().split(",");
-                                String[] scour = response.body().getResult().getScour_level().split(",");
-                                for (int i = 0; i < str.length; i++) {
-                                    prefs.SetLevel(str[i], Integer.parseInt(scour[i]));
-                                    prefs.SaveTitleLevel(str[i]);
-                                }
+                            if (body.getResult().getToken() != null) {
+                                prefs.SetToken(body.getResult().getToken());
                             }
                         }
-                        menu.SetCoin();
+                        if ("main".equals(type) && activity instanceof Main) {
+                            ((Main) activity).li_register.setVisibility(View.GONE);
+                        }
 
                         dismiss();
-                        AdsTapsell.Dialog(App.con.getResources().getString(R.string.login), activity);
+                        AdsTapsell.Dialog(activity.getString(R.string.login), activity);
+                        GetBackupInfo(googleHelper);
+                        return;
                     } else {
-                        AdsTapsell.Dialog(response.body().getError(), activity);
+                        String errorMsg = body.getError() != null ? body.getError() : "نام کاربری یا رمز عبور نامعتبر است";
+                        AdsTapsell.Dialog(errorMsg, activity);
+                        return;
                     }
                 }
-                if (response.code() == 401){
+
+                if (response.code() == 401) {
                     prefs.SetUsername("");
                     dismiss();
-                    new DialogRegister(activity, "main",googleHelper);
-                    AdsTapsell.Dialog(App.con.getResources().getString(R.string.login_token),activity);
+                    new DialogRegister(activity, type, googleHelper);
+                    AdsTapsell.Dialog(activity.getString(R.string.login_token), activity);
+                } else {
+                    AdsTapsell.Dialog("نام کاربری یا رمز عبور اشتباه است (کد " + response.code() + ")", activity);
                 }
             }
 
             @Override
-            public void onFailure(Call<ServerData.Message> call, Throwable t) {
-                Log.e(App.LogName, t.toString());
-                count++;
-                if(count > 4) {
-                    AdsTapsell.Dialog(App.con.getResources().getString(R.string.internet), activity);
-                }else {
-                    GetBackupInfo(activity, googleHelper);
-                }
+            public void onFailure(@NonNull Call<ServerData.Message> call, @NonNull Throwable t) {
+                actionBtn.setEnabled(true);
+                Log.e(TAG, "Login Network Failed: " + t.getMessage(), t);
+                AdsTapsell.Dialog(activity.getString(R.string.internet), activity);
             }
-        };
-        call.enqueue(callback);
+        });
     }
 
+    public void GetBackupInfo(GoogleLoginHelper googleHelper) {
+        String token = prefs.GetToken();
+        if (token == null || token.isEmpty()) {
+            return;
+        }
+
+        Call<ServerData.Message> call = apiInterface.backup_get(App.Token + token);
+        call.enqueue(new Callback<>() {
+            @Override
+            public void onResponse(@NonNull Call<ServerData.Message> call, @NonNull Response<ServerData.Message> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ServerData.Message body = response.body();
+                    if (Boolean.TRUE.equals(body.getSuccess()) && body.getResult() != null) {
+                        ServerData.Result res = body.getResult();
+
+                        if (res.getScour_all() != null) prefs.SetScourAll(res.getScour_all());
+                        if (res.getScour_one() != null) prefs.SetScourOne(res.getScour_one());
+                        if (res.getScour_tow() != null) prefs.SetScourTow(res.getScour_tow());
+                        if (res.getScour_tree() != null) prefs.SetScourTree(res.getScour_tree());
+                        if (res.getScour_four() != null) prefs.SetScourFour(res.getScour_four());
+                        if (res.getUser() != null) prefs.SetName(res.getUser());
+                        if (res.getPath() != null) prefs.SavePath(res.getPath());
+                        if (res.getAvatar() != null) prefs.SetAvatar(res.getAvatar());
+                        if (res.getCode() != null) prefs.SaveCode(res.getCode());
+
+                        if (res.getLevel() != null && res.getScour_level() != null) {
+                            try {
+                                String[] levels = res.getLevel().split(",");
+                                String[] scores = res.getScour_level().split(",");
+                                int limit = Math.min(levels.length, scores.length);
+                                for (int i = 0; i < limit; i++) {
+                                    if (!levels[i].trim().isEmpty() && !scores[i].trim().isEmpty()) {
+                                        prefs.SetLevel(levels[i].trim(), Integer.parseInt(scores[i].trim()));
+                                        prefs.SaveTitleLevel(levels[i].trim());
+                                    }
+                                }
+                            } catch (Exception ex) {
+                                Log.e(TAG, "Error parsing level backup: " + ex.getMessage());
+                            }
+                        }
+
+                        // اصلاح اخطار Always True برای متد menu
+                        menu.SetCoin();
+                    }
+                } else if (response.code() == 401) {
+                    prefs.SetUsername("");
+                    if (!activity.isFinishing()) {
+                        new DialogRegister(activity, "main", googleHelper);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ServerData.Message> call, @NonNull Throwable t) {
+                Log.e(TAG, "Backup fetch error: " + t.getMessage());
+                backupRetryCount++;
+                if (backupRetryCount < 3 && !activity.isFinishing()) {
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> GetBackupInfo(googleHelper), 2000);
+                }
+            }
+        });
+    }
 }
