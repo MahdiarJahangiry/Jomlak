@@ -76,7 +76,7 @@ class BotActivity : AppCompatActivity() {
             btnStart.isEnabled = true
             appendLog("ادمین شناسایی شد. پنل ربات آماده کار است.")
         } else {
-            // اگر ادمین نباشد، دکمه به کلی مخفی می‌شود
+            // اگر ادمین نباشد، دکمه اصلاً نشان داده نمی‌شود
             btnStart.visibility = View.GONE
             appendLog("دسترسی محدود: لطفاً با حساب ادمین وارد شوید.")
         }
@@ -119,30 +119,42 @@ class BotActivity : AppCompatActivity() {
             return
         }
 
-        val token = "dummy_token" // یا مقدار صحیح توکن پروژه شما
+        val token = prefs.GetToken()
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(this, "لطفا ابتدا وارد شوید", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         isRunning = true
         btnStart.isEnabled = false
         progressBar?.visibility = View.VISIBLE
 
-        // سازنده استاندارد JomlakBot به ترتیب: context, token, onLog
-        val activeBot = JomlakBot(this, token) { logText ->
+        val activeBot = JomlakBot { logText: String ->
             lifecycleScope.launch(Dispatchers.Main) {
                 appendLog(logText)
             }
         }
         bot = activeBot
 
+        // TODO: این دو تا باید از دیتای واقعی بازی پر شوند
+        val ids: List<Int> = /* مثلا از Game یا Prefs یا Intent */ emptyList()
+        val questions: List<String> = /* مثلا از Game یا Prefs یا Intent */ emptyList()
+
         lifecycleScope.launch(Dispatchers.Main) {
             try {
-                val result = withContext(Dispatchers.IO) {
-                    activeBot.run()
+                val currentBot = bot ?: run {
+                    appendLog("ربات مقداردهی نشده است.")
+                    return@launch
+                }
+
+                val result: Boolean = withContext(Dispatchers.IO) {
+                    currentBot.runOnGameDataWithResult(ids = ids, questions = questions)
                 }
 
                 if (result) {
                     appendLog("عملیات عیب‌یابی با موفقیت تکمیل شد.")
                 } else {
-                    appendLog("عیب‌یابی به پایان رسید یا با خطا متوقف شد.")
+                    appendLog("عیب‌یابی ناموفق بود یا حداقل یک مرحله خطا داشت.")
                 }
             } catch (e: Exception) {
                 appendLog("خطا در اجرای ربات: ${e.localizedMessage}")
@@ -153,6 +165,7 @@ class BotActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun sendEmail() {
         val emailUser = etEmailUser.text.toString().trim()
@@ -166,7 +179,7 @@ class BotActivity : AppCompatActivity() {
 
         val currentBot = bot
         if (currentBot == null) {
-            Toast.makeText(this, "ابتدا باید ربات را اجرا کنید", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "ابتدا باید ربات را حداقل یک‌بار اجرا کنید", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -175,7 +188,8 @@ class BotActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.Main) {
             try {
-                val success = withContext(Dispatchers.IO) {
+                // تایپ صریح Boolean برای withContext در ارسال ایمیل
+                val success: Boolean = withContext<Boolean>(Dispatchers.IO) {
                     currentBot.sendEmailReport(emailUser, emailPass, emailTo)
                 }
 

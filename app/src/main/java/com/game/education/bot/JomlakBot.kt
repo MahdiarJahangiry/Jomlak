@@ -20,6 +20,7 @@ class JomlakBot(
 
     /**
      * اجرای ربات با داده‌های ارسال شده از Game.java
+     * (همان قبلی) -> خروجی Unit
      */
     suspend fun runOnGameData(
         ids: List<Int>,
@@ -45,7 +46,6 @@ class JomlakBot(
             log("📌 در حال بررسی مرحله ${index + 1} (شناسه: $stageId)")
             log("متن مرحله: $rawQuestion")
 
-            // تجزیه متن با استفاده از PersianParser
             val parsedResult = PersianParser.parse(rawQuestion)
             val words = parsedResult.allWords
 
@@ -56,7 +56,6 @@ class JomlakBot(
 
             var stageSuccess = true
 
-            // حل مرحله به مرحله کلمات
             for ((wordIndex, word) in words.withIndex()) {
                 if (word.isBlank()) {
                     log("⚠️ اخطار در مرحله ${index + 1}: کلمه شماره ${wordIndex + 1} خالی است!")
@@ -80,11 +79,37 @@ class JomlakBot(
     }
 
     /**
-     * ارسال لاگ‌ها از طریق ایمیل با هماهنگی کامل با EmailSender
+     * نسخه Boolean دار بر اساس همان runOnGameData
+     *
+     * تعریف "موفقیت":
+     * - حداقل یک سوال وجود داشته باشد
+     * - و تعداد جملات کامل شده == تعداد سوالات
+     * - و هیچ Exception رخ ندهد
      */
+    suspend fun runOnGameDataWithResult(
+        ids: List<Int>,
+        questions: List<String>
+    ): Boolean = withContext(Dispatchers.IO) {
+        return@withContext try {
+            runOnGameData(ids, questions)
+
+            val success = questions.isNotEmpty() && solvedSentences.size == questions.size
+            if (success) {
+                log("✅ نتیجه نهایی: همه مراحل با موفقیت پاس شدند.")
+            } else {
+                log("❌ نتیجه نهایی: حداقل یک مرحله ناموفق بود یا ورودی خالی بود.")
+            }
+            success
+        } catch (e: Exception) {
+            log("❌ استثنا در اجرای ربات: ${e.message}")
+            false
+        }
+    }
+
+    // sendEmailReport همان قبلی‌ات، فقط نوع‌ها را String فرض کردم برای مثال
     suspend fun sendEmailReport(
         emailUser: String,
-        password: String,
+        emailPass: String,
         emailTo: String
     ): Boolean = withContext(Dispatchers.IO) {
         return@withContext try {
@@ -92,7 +117,7 @@ class JomlakBot(
 
             val config = EmailSender.EmailConfig(
                 user = emailUser,
-                password = password,
+                password = emailPass,
                 to = emailTo,
                 host = "smtp.gmail.com",
                 port = 587
