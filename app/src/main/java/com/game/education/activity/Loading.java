@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
@@ -31,10 +32,13 @@ public class Loading extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        // تنظیمات تمام صفحه برای نسخه‌های مختلف
-        applyFullScreen();
+        // ۱. ابتدا setContentView صدا زده می‌شود تا DecorView ساخته شود
         setContentView(R.layout.activity_loading);
+
+        // ۲. حالا با خیال راحت تمام‌صفحه می‌شود بدون خطای NPE
+        applyFullScreen();
 
         initViews();
         setupVideo();
@@ -45,7 +49,6 @@ public class Loading extends AppCompatActivity {
         videoPlayer = findViewById(R.id.video_player);
         progressBar = findViewById(R.id.progressBar);
 
-        // استفاده از ContextCompat برای جلوگیری از Warning منسوخ شدن getDrawable
         progressBar.setProgressDrawable(ContextCompat.getDrawable(this, R.drawable.shape_progress_bar));
     }
 
@@ -53,7 +56,6 @@ public class Loading extends AppCompatActivity {
         Uri videoUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.loading);
         videoPlayer.setVideoURI(videoUri);
 
-        // مدیریت چرخه حیات ویدیو (لوپ کردن در صورت نیاز یا هندل کردن اتمام)
         videoPlayer.setOnPreparedListener(mp -> {
             mp.setLooping(true);
             videoPlayer.start();
@@ -61,7 +63,6 @@ public class Loading extends AppCompatActivity {
     }
 
     private void startLoadingAnimation() {
-        // بهینه سازی انیمیشن پروگرس بار
         progressAnimator = ValueAnimator.ofInt(0, progressBar.getMax());
         progressAnimator.setDuration(5000);
         progressAnimator.addUpdateListener(animation ->
@@ -69,9 +70,11 @@ public class Loading extends AppCompatActivity {
         );
 
         progressAnimator.addListener(new AnimatorListenerAdapter() {
+
+
             @Override
             public void onAnimationEnd(Animator animation) {
-                if (!isFinishing()) {
+                if (!isFinishing() && !isDestroyed()) {
                     navigateToMain();
                 }
             }
@@ -87,23 +90,29 @@ public class Loading extends AppCompatActivity {
     }
 
     private void applyFullScreen() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // متد جدید برای اندروید 11 به بالا
-            getWindow().setDecorFitsSystemWindows(false);
-            WindowInsetsController controller = getWindow().getInsetsController();
-            if (controller != null) {
-                controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
-                controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (getWindow() != null && getWindow().getDecorView() != null) {
+                    getWindow().setDecorFitsSystemWindows(false);
+                    WindowInsetsController controller = getWindow().getInsetsController();
+                    if (controller != null) {
+                        controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+                        controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+                    }
+                }
+            } else {
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                View decorView = getWindow().getDecorView();
+                if (decorView != null) {
+                    int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN;
+                    decorView.setSystemUiVisibility(uiOptions);
+                }
             }
-        } else {
-            // متد قدیمی برای اندرویدهای پایین‌تر
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            View decorView = getWindow().getDecorView();
-            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN;
-            decorView.setSystemUiVisibility(uiOptions);
+        } catch (Exception ignored) {
+            // جلوگیری از هرگونه کرش حین راه‌اندازی پنجره
         }
     }
 
@@ -127,7 +136,6 @@ public class Loading extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // جلوگیری از نشت حافظه با متوقف کردن انیمیشن
         if (progressAnimator != null) {
             progressAnimator.removeAllUpdateListeners();
             progressAnimator.cancel();

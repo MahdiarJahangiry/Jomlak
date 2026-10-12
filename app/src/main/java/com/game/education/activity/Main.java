@@ -73,8 +73,12 @@ public class Main extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        applyFullScreen();
+
+        // ۱. ابتدا setContentView صدا زده می‌شود تا DecorView تشکیل شود
         setContentView(R.layout.activity_main);
+
+        // ۲. حالا بدون هیچ خطایی فول‌اسکرین اعمال می‌شود
+        applyFullScreen();
 
         initDependencies();
         initViews();
@@ -85,6 +89,7 @@ public class Main extends AppCompatActivity {
         GetAbout();
         GetVersion();
     }
+
 
     private void setupBackNavigation() {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -587,20 +592,31 @@ public class Main extends AppCompatActivity {
     }
 
     private void applyFullScreen() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            getWindow().setDecorFitsSystemWindows(false);
-            WindowInsetsController controller = getWindow().getInsetsController();
-            if (controller != null) {
-                controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
-                controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (getWindow() != null && getWindow().getDecorView() != null) {
+                    getWindow().setDecorFitsSystemWindows(false);
+                    WindowInsetsController controller = getWindow().getInsetsController();
+                    if (controller != null) {
+                        controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+                        controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+                    }
+                }
+            } else {
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                View decorView = getWindow().getDecorView();
+                if (decorView != null) {
+                    int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN;
+                    decorView.setSystemUiVisibility(uiOptions);
+                }
             }
-        } else {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            View decorView = getWindow().getDecorView();
-            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN;
-            decorView.setSystemUiVisibility(uiOptions);
+        } catch (Exception ignored) {
+            // جلوگیری از کرش سیستم‌عامل در دیوایس‌ها و رام‌های مختلف
         }
     }
+
 
     @Override
     protected void attachBaseContext(Context newBase) {

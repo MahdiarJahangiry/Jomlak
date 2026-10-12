@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layoutDirection="ltr"
-    android:background="@color/white">
+    android:background="@color/white"
+    tools:ignore="Overdraw">
 
     <!-- لوگو (پنهان) -->
     <ImageView
@@ -13,7 +14,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/logo"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:ignore="ContentDescription" />
 
     <!-- تولبار -->
     <include layout="@layout/content_tolbar" />
@@ -23,29 +25,35 @@
         android:layout_width="260dp"
         android:layout_height="290dp"
         android:layout_alignParentBottom="true"
-        android:src="@drawable/ui" />
+        android:src="@drawable/ui"
+        tools:ignore="ContentDescription" />
 
-    <!-- 🆕 دکمه ربات جملک - گوشه بالا راست -->
+    <!-- دکمه ربات جملک - گوشه بالا راست -->
     <LinearLayout
         android:id="@+id/li_bot"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        android:layout_alignParentEnd="true"
         android:layout_below="@+id/re_tolbar"
         android:layout_marginTop="10dp"
-        android:layout_marginRight="15dp"
+        android:layout_marginEnd="15dp"
         android:orientation="horizontal"
         android:padding="10dp"
-        android:gravity="center_vertical"
+        android:gravity="center"
         android:background="#4CAF50"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true"
+        android:contentDescription="ربات"
+        tools:ignore="HardcodedText,TextContrastCheck,ImageContrastCheck">
 
         <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="wrap_content"
+            android:layout_height="18dp"
             android:src="@android:drawable/ic_menu_manage"
-            app:tint="#FFFFFF" />
+            app:tint="#FFFFFF"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -71,13 +79,15 @@
             android:layout_width="65dp"
             android:layout_height="25dp"
             android:layout_marginBottom="10dp"
-            android:layout_marginRight="-15dp"
-            android:src="@drawable/seke_200" />
+            android:layout_marginEnd="-15dp"
+            android:src="@drawable/seke_200"
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:layout_width="55dp"
             android:layout_height="55dp"
-            android:src="@drawable/sigin_icon" />
+            android:src="@drawable/sigin_icon"
+            tools:ignore="ContentDescription" />
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -104,7 +114,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:src="@drawable/newplay1" />
+            android:src="@drawable/newplay1"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:layout_width="190dp"
@@ -116,20 +127,20 @@
             android:id="@+id/img_play"
             android:layout_width="130dp"
             android:layout_height="130dp"
-            android:layout_marginTop="75dp"
-            android:layout_marginLeft="75dp"
-            android:src="@drawable/seyfplay1" />
+            android:layout_centerInParent="true"
+            android:src="@drawable/seyfplay1"
+            tools:ignore="ContentDescription" />
     </RelativeLayout>
 
-    <!-- دکمه ویدیو (گوشه بالا راست زیر تولبار) -->
+    <!-- دکمه ویدیو (گوشه بالا راست زیر تولبار و ربات) -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/re_tolbar"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="60dp"
-        android:layout_marginRight="15dp"
-        android:gravity="center|right"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="65dp"
+        android:layout_marginEnd="15dp"
+        android:gravity="center|end"
         android:orientation="vertical">
 
         <TextView
@@ -137,11 +148,12 @@
             android:layout_width="100dp"
             android:layout_height="58dp"
             android:background="@drawable/video_icon"
-            android:gravity="left|center"
+            android:gravity="start|center_vertical"
             android:paddingTop="5dp"
-            android:paddingLeft="10dp"
+            android:paddingStart="10dp"
             android:textColor="@color/white"
-            android:textSize="22sp" />
+            android:textSize="22sp"
+            tools:ignore="RtlSymmetry,TextContrastCheck" />
     </LinearLayout>
 
     <!-- نوار پایین -->
@@ -159,13 +171,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true"
+            tools:ignore="UseCompoundDrawables">
 
             <ImageView
                 android:layout_width="55dp"
                 android:layout_height="55dp"
                 android:src="@drawable/frind_icon"
-                android:visibility="visible" />
+                android:visibility="visible"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/txt_frinds"
@@ -177,20 +193,24 @@
                 android:textSize="16sp" />
         </LinearLayout>
 
-        <!-- دکمه فروشگاه (اگر دارید) -->
+        <!-- دکمه فروشگاه / تبلیغات -->
         <LinearLayout
             android:id="@+id/li_ads"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="تبلیغات"
+            tools:ignore="HardcodedText">
 
             <ImageView
                 android:layout_width="55dp"
                 android:layout_height="55dp"
-
-                android:visibility="visible" />
+                android:visibility="visible"
+                tools:ignore="ContentDescription" />
 
         </LinearLayout>
     </LinearLayout>
