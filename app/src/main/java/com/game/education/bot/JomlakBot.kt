@@ -19,94 +19,74 @@ class JomlakBot(
     }
 
     /**
-     * اجرای ربات با داده‌های ارسال شده از Game.java
-     * (همان قبلی) -> خروجی Unit
-     */
-    suspend fun runOnGameData(
-        ids: List<Int>,
-        questions: List<String>
-    ) = withContext(Dispatchers.IO) {
-        fullLog.setLength(0)
-        solvedWords.clear()
-        solvedSentences.clear()
-
-        log("🚀 شروع فرآیند عیب‌یابی و اجرای خودکار ربات ادمین...")
-        log("تعداد مراحل/جملات دریافتی از بازی: ${questions.size}")
-
-        if (questions.isEmpty()) {
-            log("⚠️ هیچ جمله‌ای برای تست دریافت نشد!")
-            return@withContext
-        }
-
-        for (index in questions.indices) {
-            val stageId = if (index < ids.size) ids[index] else index + 1
-            val rawQuestion = questions[index]
-
-            log("--------------------------------------------------")
-            log("📌 در حال بررسی مرحله ${index + 1} (شناسه: $stageId)")
-            log("متن مرحله: $rawQuestion")
-
-            val parsedResult = PersianParser.parse(rawQuestion)
-            val words = parsedResult.allWords
-
-            if (words.isEmpty()) {
-                log("❌ خطا در مرحله ${index + 1}: هیچ کلمه‌ای از جمله استخراج نشد (مشکل در فرمت متن).")
-                continue
-            }
-
-            var stageSuccess = true
-
-            for ((wordIndex, word) in words.withIndex()) {
-                if (word.isBlank()) {
-                    log("⚠️ اخطار در مرحله ${index + 1}: کلمه شماره ${wordIndex + 1} خالی است!")
-                    stageSuccess = false
-                } else {
-                    log("  ✅ کلمه حل شد: [$word]")
-                    solvedWords.add(word)
-                }
-            }
-
-            if (stageSuccess) {
-                solvedSentences.add(rawQuestion)
-                log("🎉 مرحله ${index + 1} با موفقیت کامل پاس شد.")
-            } else {
-                log("⛔ مرحله ${index + 1} با وجود خطا به پایان رسید.")
-            }
-        }
-
-        log("==================================================")
-        log("🏁 پایان فرآیند تست. کل کلمات حل شده: ${solvedWords.size} | کل جملات کامل: ${solvedSentences.size}")
-    }
-
-    /**
-     * نسخه Boolean دار بر اساس همان runOnGameData
-     *
-     * تعریف "موفقیت":
-     * - حداقل یک سوال وجود داشته باشد
-     * - و تعداد جملات کامل شده == تعداد سوالات
-     * - و هیچ Exception رخ ندهد
+     * اجرای تست جملات دریافتی و بازگرداندن خروجی بافرمت Boolean
      */
     suspend fun runOnGameDataWithResult(
         ids: List<Int>,
         questions: List<String>
     ): Boolean = withContext(Dispatchers.IO) {
-        return@withContext try {
-            runOnGameData(ids, questions)
+        fullLog.setLength(0)
+        solvedWords.clear()
+        solvedSentences.clear()
 
-            val success = questions.isNotEmpty() && solvedSentences.size == questions.size
-            if (success) {
-                log("✅ نتیجه نهایی: همه مراحل با موفقیت پاس شدند.")
-            } else {
-                log("❌ نتیجه نهایی: حداقل یک مرحله ناموفق بود یا ورودی خالی بود.")
-            }
-            success
-        } catch (e: Exception) {
-            log("❌ استثنا در اجرای ربات: ${e.message}")
-            false
+        log("🚀 شروع فرآیند تست خودکار و تحلیل کلمات و جملات...")
+        log("تعداد کل مراحل/جملات دریافتی: ${questions.size}")
+
+        if (questions.isEmpty()) {
+            log("⚠️ هیچ جمله‌ای برای تست در دسترس نیست! (لیست ارسالی خالی است)")
+            return@withContext false
         }
+
+        var totalPassed = true
+
+        for (index in questions.indices) {
+            val stageId = if (index < ids.size) ids[index] else index + 1
+            val rawQuestion = questions[index].trim()
+
+            log("--------------------------------------------------")
+            log("📌 مرحله ${index + 1} (شناسه: $stageId)")
+            log("متن خام: \"$rawQuestion\"")
+
+            // جملات ممکن است با ویرگول/کاما چند بخشی باشند
+            val subSentences = rawQuestion.split(",", "،").map { it.trim() }.filter { it.isNotEmpty() }
+
+            var stageSuccess = true
+
+            for ((sentenceIdx, subSentence) in subSentences.withIndex()) {
+                // استخراج کلمات تفکیک شده با فاصله
+                val words = subSentence.split("\\s+".toRegex()).filter { it.isNotBlank() }
+
+                if (words.isEmpty()) {
+                    log("  ❌ بخش ${sentenceIdx + 1}: هیچ کلمه‌ای استخراج نشد!")
+                    stageSuccess = false
+                    continue
+                }
+
+                log("  🔹 بخش ${sentenceIdx + 1} (${words.size} کلمه):")
+                for (w in words) {
+                    val cleanWord = w.replace("[.,،!؟?]".toRegex(), "").trim()
+                    if (cleanWord.isNotEmpty()) {
+                        solvedWords.add(cleanWord)
+                        log("     ✅ کلمه تایید شد: [$cleanWord]")
+                    }
+                }
+            }
+
+            if (stageSuccess && subSentences.isNotEmpty()) {
+                solvedSentences.add(rawQuestion)
+                log("🎉 مرحله ${index + 1} با موفقیت تایید و تست شد.")
+            } else {
+                totalPassed = false
+                log("⛔ مرحله ${index + 1} دارای نقص در ساختار بود.")
+            }
+        }
+
+        log("==================================================")
+        log("🏁 پایان فرآیند تست. کل کلمات استخراج شده: ${solvedWords.size} | مراحل کامل: ${solvedSentences.size}/${questions.size}")
+
+        return@withContext totalPassed && solvedSentences.isNotEmpty()
     }
 
-    // sendEmailReport همان قبلی‌ات، فقط نوع‌ها را String فرض کردم برای مثال
     suspend fun sendEmailReport(
         emailUser: String,
         emailPass: String,
@@ -123,13 +103,13 @@ class JomlakBot(
                 port = 587
             )
 
-            val subject = "گزارش ربات جملک (ادمین) - ${Date()}"
+            val subject = "گزارش تست خودکار ربات جملک - ${Date()}"
 
             val htmlBody = buildString {
                 append("<div dir='rtl' style='font-family:Tahoma,sans-serif;'>")
-                append("<h2>گزارش تست خودکار بازی جملک</h2>")
-                append("<p><b>تعداد کلمات حل شده:</b> ${solvedWords.size}</p>")
-                append("<p><b>تعداد جملات کامل شده:</b> ${solvedSentences.size}</p>")
+                append("<h2>گزارش تست ربات ادمین</h2>")
+                append("<p><b>تعداد کلمات موفق:</b> ${solvedWords.size}</p>")
+                append("<p><b>تعداد مراحل کامل شده:</b> ${solvedSentences.size}</p>")
                 append("<hr/>")
                 append("<h3>لاگ کامل عملیات:</h3>")
                 append("<pre style='background:#f4f4f4;padding:10px;border-radius:5px;direction:ltr;text-align:left;'>")
@@ -146,7 +126,7 @@ class JomlakBot(
             )
 
             if (result.isSuccess) {
-                log("✅ ایمیل گزارش با موفقیت ارسال شد.")
+                log("✅ گزارش با موفقیت ایمیل شد.")
                 true
             } else {
                 val errorMsg = result.exceptionOrNull()?.localizedMessage ?: "خطای ناشناخته"

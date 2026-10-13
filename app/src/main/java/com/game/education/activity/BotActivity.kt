@@ -10,7 +10,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.game.education.App
 import com.game.education.R
+import com.game.education.api.ApiInterface
+import com.game.education.api.RetrofitClient
 import com.game.education.bot.JomlakBot
 import com.game.education.bot.LogAdapter
 import com.game.education.model.Prefs
@@ -37,6 +40,10 @@ class BotActivity : AppCompatActivity() {
     private var bot: JomlakBot? = null
     private var isRunning: Boolean = false
 
+    // داده‌های مراحل
+    private var receivedIds = arrayListOf<Int>()
+    private var receivedQuestions = arrayListOf<String>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bot)
@@ -45,6 +52,9 @@ class BotActivity : AppCompatActivity() {
         initViews()
         setupRecycler()
         setupListeners()
+
+        // استخراج داده‌های فرستاده‌شده از Game.java
+        extractIntentData()
 
         checkAdminSession()
     }
@@ -69,6 +79,19 @@ class BotActivity : AppCompatActivity() {
         recyclerLogs.adapter = logAdapter
     }
 
+    private fun extractIntentData() {
+        intent.getIntegerArrayListExtra("EXTRA_IDS")?.let {
+            receivedIds = it
+        }
+        intent.getStringArrayListExtra("EXTRA_QUESTIONS")?.let {
+            receivedQuestions = it
+        }
+
+        if (receivedQuestions.isNotEmpty()) {
+            appendLog("📥 تعداد ${receivedQuestions.size} سوال از جریان بازی دریافت گردید.")
+        }
+    }
+
     private fun checkAdminSession() {
         val currentUsername = prefs.GetUsername()
         if (currentUsername == "admin") {
@@ -76,7 +99,6 @@ class BotActivity : AppCompatActivity() {
             btnStart.isEnabled = true
             appendLog("ادمین شناسایی شد. پنل ربات آماده کار است.")
         } else {
-            // اگر ادمین نباشد، دکمه اصلاً نشان داده نمی‌شود
             btnStart.visibility = View.GONE
             appendLog("دسترسی محدود: لطفاً با حساب ادمین وارد شوید.")
         }
@@ -121,7 +143,7 @@ class BotActivity : AppCompatActivity() {
 
         val token = prefs.GetToken()
         if (token.isNullOrEmpty()) {
-            Toast.makeText(this, "لطفا ابتدا وارد شوید", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "لطفا ابتدا وارد حساب خود شوید (توکن نامعتبر است)", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -136,28 +158,33 @@ class BotActivity : AppCompatActivity() {
         }
         bot = activeBot
 
-        // TODO: این دو تا باید از دیتای واقعی بازی پر شوند
-        val ids: List<Int> = /* مثلا از Game یا Prefs یا Intent */ emptyList()
-        val questions: List<String> = /* مثلا از Game یا Prefs یا Intent */ emptyList()
-
         lifecycleScope.launch(Dispatchers.Main) {
             try {
-                val currentBot = bot ?: run {
-                    appendLog("ربات مقداردهی نشده است.")
+                // اگر از Intent دیتایی دریافت نشده بود، مستقیماً از سرور فچ کن
+                if (receivedQuestions.isEmpty()) {
+                    appendLog("🌐 در حال دریافت سوالات مستقیماً از سرور بازی...")
+                    fetchQuestionsFromServer()
+                }
+
+                if (receivedQuestions.isEmpty()) {
+                    appendLog("❌ سوالی برای تست یافت نشد (پاسخ سرور خالی بود یا ارتباط برقرار نشد).")
                     return@launch
                 }
 
                 val result: Boolean = withContext(Dispatchers.IO) {
-                    currentBot.runOnGameDataWithResult(ids = ids, questions = questions)
+                    activeBot.runOnGameDataWithResult(
+                        ids = receivedIds,
+                        questions = receivedQuestions
+                    )
                 }
 
                 if (result) {
-                    appendLog("عملیات عیب‌یابی با موفقیت تکمیل شد.")
+                    appendLog("🎉 عملیات عیب‌یابی با موفقیت کامل به پایان رسید.")
                 } else {
-                    appendLog("عیب‌یابی ناموفق بود یا حداقل یک مرحله خطا داشت.")
+                    appendLog("⚠️ عیب‌یابی به پایان رسید اما یک یا چند مرحله با خطا مواجه شدند.")
                 }
             } catch (e: Exception) {
-                appendLog("خطا در اجرای ربات: ${e.localizedMessage}")
+                appendLog("❌ خطا در اجرای ربات: ${e.localizedMessage}")
             } finally {
                 isRunning = false
                 progressBar?.visibility = View.GONE
@@ -166,6 +193,44 @@ class BotActivity : AppCompatActivity() {
         }
     }
 
+    private suspend fun fetchQuestionsFromServer() = withContext(Dispatchers.IO) {
+        try {
+            val api = RetrofitClient.getRetrofitInstance().create(ApiInterface::class.java)
+            val lang = prefs.GetLang() ?: "fa"
+            val token = App.Token + prefs.GetToken()
+
+            // شناسه پایه پیش‌فرض یا فصل فعلی
+            val currentId = 1
+            val response = api.bases_with_token(token, lang, currentId).execute()
+
+            if (response.isSuccessful && response.body() != null) {
+                val levels = response.body()?.items ?: emptyList()
+                val ids = arrayListOf<Int>()
+                val questions = arrayListOf<String>()
+
+                for (lvl in levels) {
+                    ids.add(lvl.id)
+                    // در دیتای بازی، کلمات سوال با دو نقطه یا مستقیم در title ذخیره می‌شوند
+                    val qText = lvl.title ?: ""
+                    questions.add(qText)
+                }
+
+                withContext(Dispatchers.Main) {
+                    receivedIds = ids
+                    receivedQuestions = questions
+                    appendLog("✅ تعداد ${questions.size} مرحله با موفقیت از سرور بازی بارگذاری شد.")
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    appendLog("❌ عدم دریافت داده از سرور (کد وضعیت: ${response.code()})")
+                }
+            }
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                appendLog("❌ خطا در اتصال به سرور: ${e.localizedMessage}")
+            }
+        }
+    }
 
     private fun sendEmail() {
         val emailUser = etEmailUser.text.toString().trim()
@@ -188,14 +253,13 @@ class BotActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.Main) {
             try {
-                // تایپ صریح Boolean برای withContext در ارسال ایمیل
-                val success: Boolean = withContext<Boolean>(Dispatchers.IO) {
+                val success: Boolean = withContext(Dispatchers.IO) {
                     currentBot.sendEmailReport(emailUser, emailPass, emailTo)
                 }
 
                 if (success) {
                     Toast.makeText(this@BotActivity, "ایمیل با موفقیت ارسال شد", Toast.LENGTH_SHORT).show()
-                    appendLog("گزارش با موفقیت به $emailTo ایمیل شد.")
+                    appendLog("گزارش با موفقیت به $emailTo ارسال شد.")
                 } else {
                     Toast.makeText(this@BotActivity, "خطا در ارسال ایمیل", Toast.LENGTH_SHORT).show()
                     appendLog("ارسال ایمیل ناموفق بود.")
