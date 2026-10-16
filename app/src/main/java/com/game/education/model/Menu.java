@@ -240,7 +240,7 @@ public class Menu
     {
         Retrofit retrofit = RetrofitClient.getRetrofitInstance();
         ApiInterface apiInterface = retrofit.create(ApiInterface.class);
-        Call<ServerData.levels> call = apiInterface.titles_with_token(App.Token + prefs.GetToken(), prefs.GetLang());
+        Call<ServerData.levels> call = apiInterface.titles( prefs.GetLang());
         Callback<ServerData.levels> callback = new Callback<ServerData.levels>() {
             @Override
             public void onResponse(Call<ServerData.levels> call, Response<ServerData.levels> response) {

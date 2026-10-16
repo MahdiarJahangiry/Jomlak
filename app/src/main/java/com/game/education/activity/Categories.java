@@ -84,7 +84,7 @@ public class Categories extends AppCompatActivity {
     {
         Retrofit retrofit = RetrofitClient.getRetrofitInstance();
         ApiInterface apiInterface = retrofit.create(ApiInterface.class);
-        Call<ServerData.levels> call = apiInterface.categories_with_token(App.Token + prefs.GetToken(), prefs.GetLang(), id);
+        Call<ServerData.levels> call = apiInterface.categories( id,prefs.GetLang());
         Callback<ServerData.levels> callback = new Callback<ServerData.levels>() {
             @Override
             public void onResponse(Call<ServerData.levels> call, Response<ServerData.levels> response) {

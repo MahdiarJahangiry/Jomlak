@@ -125,7 +125,7 @@ public class Main extends AppCompatActivity {
     private void initViews() {
         img_video = findViewById(R.id.img_video);
         txt_register = findViewById(R.id.txt_register);
-        li_register = findViewById(R.id.li_register);
+
 
         TextView txt_frinds = findViewById(R.id.txt_frinds);
         if (txt_frinds != null) {
@@ -147,16 +147,7 @@ public class Main extends AppCompatActivity {
             });
         }
 
-        if (li_register != null) {
-            li_register.setOnClickListener(v -> {
-                sound.PlayClick();
-                if (prefs.GetUsername().isEmpty()) {
-                    new DialogRegister(Main.this, "main", googleHelper);
-                }
-            });
-        }
-
-        LinearLayout li_frinds = findViewById(R.id.li_frinds);
+           LinearLayout li_frinds = findViewById(R.id.li_frinds);
         if (li_frinds != null) {
             li_frinds.setOnClickListener(v -> {
                 sound.PlayClick();
@@ -169,12 +160,21 @@ public class Main extends AppCompatActivity {
         }
 
         ImageView img_play = findViewById(R.id.img_play);
-        if (img_play != null) {
-            img_play.setOnClickListener(v -> {
+        // گیت احراز هویت: جلوگیری از ورود بدون لاگین یا ثبت نام
+        img_play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 sound.PlayClick();
-                startActivity(new Intent(Main.this, Titles.class));
-            });
-        }
+                if (prefs.GetUsername().trim().isEmpty() || prefs.GetToken().trim().isEmpty()) {
+                    Toast.makeText(Main.this, "لطفاً ابتدا وارد حساب کاربری خود شوید", Toast.LENGTH_SHORT).show();
+                    new DialogRegister(Main.this, "main", googleHelper);
+                } else {
+                    Intent intent = new Intent(Main.this, Titles.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
 
         LinearLayout li_bot = findViewById(R.id.li_bot);
         if (li_bot != null) {
@@ -478,7 +478,6 @@ public class Main extends AppCompatActivity {
                                 prefs.SetToken(body.getResult().getToken());
                             }
                         }
-                        li_register.setVisibility(View.GONE);
                         GetBackupInfo();
                     } else {
                         AdsTapsell.Dialog(body.getError() != null ? body.getError() : "خطا در ورود", Main.this);
@@ -630,17 +629,19 @@ public class Main extends AppCompatActivity {
         menu.SetCoin();
         SoundPlayer.PlayMusic();
 
-        boolean hasUser = !prefs.GetUsername().isEmpty();
+        boolean isLoggedIn = !prefs.GetUsername().trim().isEmpty() && !prefs.GetToken().trim().isEmpty();
 
-        if (hasUser) {
+        if (isLoggedIn) {
             SaveBackupInfo();
             GetAffiliate();
             getBalance();
-            if (txt_register != null) txt_register.setText(getString(R.string.signup));
-            li_register.setVisibility(View.GONE);
-        } else {
-            if (txt_register != null) txt_register.setText(getString(R.string.register_main));
-            li_register.setVisibility(View.VISIBLE);
+
+            }
+        else {
+            // کاربر هنوز لاگین نکرده؛ فوراً صفحه ورود/ثبت‌نام باز شود
+            if (li_register != null) {
+                li_register.setVisibility(View.GONE); // روی صفحه اصلی هیچ دکمه‌ای نباشد
+            }
             new DialogRegister(Main.this, "main", googleHelper);
         }
 
@@ -648,6 +649,7 @@ public class Main extends AppCompatActivity {
             img_video.setVisibility(View.GONE);
         }
     }
+
 
     @Override
     protected void onPause() {
