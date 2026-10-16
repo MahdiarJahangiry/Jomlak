@@ -20,7 +20,7 @@ import retrofit2.http.Query;
 public interface ApiInterface
 {
     // ============================================
-    // ✅ متدهای ربات (جملک) - بدون توکن
+    // ✅ متدهای ربات (بدون توکن)
     // ============================================
 
     @GET("v1/titles")
@@ -59,7 +59,7 @@ public interface ApiInterface
     );
 
     // ============================================
-    // ✅ متدهای اپلیکیشن اصلی - با توکن (نام‌ها اصلاح شد)
+    // ✅ متدهای اپلیکیشن اصلی (با توکن) - نام‌ها اصلاح شد
     // ============================================
 
     @Headers("Content-Type: application/json")
@@ -88,7 +88,6 @@ public interface ApiInterface
     @GET("v1/version")
     Call<ServerData.Message> version();
 
-    // ✅ تغییر نام: titles → titles_with_token
     @Headers("Content-Type: application/json")
     @GET("v1/titles")
     Call<ServerData.levels> titles_with_token(
@@ -96,7 +95,6 @@ public interface ApiInterface
             @Query("lang") String lang
     );
 
-    // ✅ تغییر نام: categories → categories_with_token
     @Headers("Content-Type: application/json")
     @GET("v1/categories")
     Call<ServerData.levels> categories_with_token(
@@ -105,7 +103,6 @@ public interface ApiInterface
             @Query("titleId") Integer titleId
     );
 
-    // ✅ تغییر نام: bases → bases_with_token
     @Headers("Content-Type: application/json")
     @GET("v1/bases")
     Call<ServerData.levels> bases_with_token(
@@ -114,7 +111,6 @@ public interface ApiInterface
             @Query("categoryId") Integer categoryId
     );
 
-    // ✅ تغییر نام: sentences → sentences_with_token
     @Headers("Content-Type: application/json")
     @GET("v1/sentences")
     Call<ServerData.levels> sentences_with_token(
@@ -124,7 +120,6 @@ public interface ApiInterface
             @Query("page") Integer page
     );
 
-    // ✅ تغییر نام: chapters → chapters_with_token
     @Headers("Content-Type: application/json")
     @GET("v1/chapters")
     Call<ServerData.levels> chapters_with_token(
