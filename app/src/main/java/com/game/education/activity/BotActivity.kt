@@ -82,89 +82,108 @@ class BotActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupListeners() {
+       private fun setupListeners() {
+        // کلیک روی دکمه لاگین: اعتبارسنجی فیلدها و ارسال به متد handleLogin
         btnLogin.setOnClickListener {
-            val u = etUsername.text.toString().trim()
-            val p = etPassword.text.toString().trim()
-
-            if (u == "admin" && (p == "mh1364" || p == "mh198553")) {
-                prefs.SetUsername("admin")
-                btnStart.visibility = View.VISIBLE
-                btnStart.isEnabled = true
-                appendLog("ورود ادمین با موفقیت انجام شد.")
-                Toast.makeText(this, "ورود ادمین موفقیت‌آمیز بود", Toast.LENGTH_SHORT).show()
-            } else {
-                btnStart.visibility = View.GONE
-                appendLog("خطا: نام کاربری یا رمز عبور ادمین اشتباه است!")
-                Toast.makeText(this, "دسترسی غیرمجاز", Toast.LENGTH_SHORT).show()
-            }
+            handleLogin()
         }
 
-        btnClear.setOnClickListener {
-            logAdapter.clear()
-        }
-
+        // کلیک روی دکمه شروع ربات (تنها پس از ورود موفق فعال است)
         btnStart.setOnClickListener {
             startBotDiagnostic()
         }
 
+        // کلیک روی دکمه ارسال گزارش ایمیل
         btnSendEmail.setOnClickListener {
             sendEmail()
         }
     }
 
-    private fun startBotDiagnostic() {
-        if (isRunning) {
-            Toast.makeText(this, "ربات در حال اجراست", Toast.LENGTH_SHORT).show()
+    private fun handleLogin() {
+        val username = etUsername.text.toString().trim()
+        val password = etPassword.text.toString().trim() // دریافت مستقیم پسورد از ورودی متن مانند نام کاربری
+
+        if (username.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "لطفاً نام کاربری و رمز عبور را وارد کنید", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val token = prefs.GetToken()
-        if (token.isNullOrEmpty()) {
-            Toast.makeText(this, "لطفا ابتدا وارد شوید", Toast.LENGTH_SHORT).show()
+        // ساخت نمونه ربات با کانتکست و لامبدای لاگ
+        bot = JomlakBot(
+            context = this,
+            onLog = { logText ->
+                runOnUiThread {
+                    appendLog(logText)
+                }
+            }
+        )
+
+        lifecycleScope.launch {
+            btnLogin.isEnabled = false
+            btnLogin.text = "در حال ورود..."
+            appendLog("⏳ در حال تلاش برای احراز هویت با نام کاربری: $username")
+
+            // فراخوانی متد login داخل JomlakBot در نخ IO
+            val loginSuccess = withContext(Dispatchers.IO) {
+                bot?.login(username, password) ?: false
+            }
+
+            btnLogin.isEnabled = true
+            btnLogin.text = "ورود"
+
+            if (loginSuccess) {
+                appendLog("✅ احراز هویت موفقیت‌آمیز بود! توکن دریافت شد.")
+                btnStart.isEnabled = true
+                btnStart.text = "شروع ربات"
+                Toast.makeText(this@BotActivity, "ورود با موفقیت انجام شد", Toast.LENGTH_SHORT).show()
+            } else {
+                appendLog("❌ ورود ناموفق بود. نام کاربری یا رمز عبور نامعتبر است.")
+                btnStart.isEnabled = false
+                Toast.makeText(this@BotActivity, "ورود ناموفق! اطلاعات را بررسی کنید", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun startBotDiagnostic() {
+        if (isRunning) return
+
+        val currentBot = bot
+        if (currentBot == null) {
+            Toast.makeText(this, "لطفاً ابتدا لاگین کنید", Toast.LENGTH_SHORT).show()
             return
         }
 
         isRunning = true
         btnStart.isEnabled = false
-        progressBar?.visibility = View.VISIBLE
+        btnStart.text = "در حال اجرا..."
 
-        val activeBot = JomlakBot { logText: String ->
-            lifecycleScope.launch(Dispatchers.Main) {
-                appendLog(logText)
-            }
-        }
-        bot = activeBot
-
-        // TODO: این دو تا باید از دیتای واقعی بازی پر شوند
-        val ids: List<Int> = /* مثلا از Game یا Prefs یا Intent */ emptyList()
-        val questions: List<String> = /* مثلا از Game یا Prefs یا Intent */ emptyList()
-
-        lifecycleScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch {
             try {
-                val currentBot = bot ?: run {
-                    appendLog("ربات مقداردهی نشده است.")
-                    return@launch
-                }
+                appendLog("🚀 ربات جملک شروع به اجرای عملیات کرد...")
 
+                // اجرای عملیات کامل حل مراحل با run()
                 val result: Boolean = withContext(Dispatchers.IO) {
-                    currentBot.runOnGameDataWithResult(ids = ids, questions = questions)
+                    currentBot.run()
                 }
 
                 if (result) {
-                    appendLog("عملیات عیب‌یابی با موفقیت تکمیل شد.")
+                    appendLog("🎉 پردازش تمام مراحل با موفقیت به پایان رسید.")
                 } else {
-                    appendLog("عیب‌یابی ناموفق بود یا حداقل یک مرحله خطا داشت.")
+                    appendLog("⚠️ عملیات ربات با خطا مواجه شد یا متوقف گردید.")
                 }
+
             } catch (e: Exception) {
-                appendLog("خطا در اجرای ربات: ${e.localizedMessage}")
+                appendLog("❌ خطای غیرمنتظره در اجرای ربات: ${e.message}")
             } finally {
                 isRunning = false
-                progressBar?.visibility = View.GONE
                 btnStart.isEnabled = true
+                btnStart.text = "اجرای مجدد ربات"
             }
         }
     }
+
+
+
 
 
     private fun sendEmail() {
@@ -193,7 +212,7 @@ class BotActivity : AppCompatActivity() {
                     currentBot.sendEmailReport(emailUser, emailPass, emailTo)
                 }
 
-                if (success) {
+                    if (success) {
                     Toast.makeText(this@BotActivity, "ایمیل با موفقیت ارسال شد", Toast.LENGTH_SHORT).show()
                     appendLog("گزارش با موفقیت به $emailTo ایمیل شد.")
                 } else {

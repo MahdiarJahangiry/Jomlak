@@ -3,7 +3,7 @@ package com.game.education.activity;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.widget.NestedScrollView;
-import java.util.Collections;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -47,6 +47,7 @@ import com.game.education.model.LineView;
 import com.game.education.model.Prefs;
 import com.game.education.model.Sentence;
 import com.game.education.model.SoundPlayer;
+import com.jgabrielfreitas.core.BlurImageView;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +59,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-
 
 public class Game extends AppCompatActivity {
 
@@ -113,8 +113,8 @@ public class Game extends AppCompatActivity {
     private boolean magnetEnable = false;
     private boolean isFirst = true;
 
-
-       @Override
+    @SuppressLint("MissingInflatedId")
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -124,18 +124,8 @@ public class Game extends AppCompatActivity {
         FullScreen();
         SetRandomTheme();
 
-
-
         prefs = new Prefs(this);
         sound = new SoundPlayer(this);
-
-        if ("admin".equals(prefs.GetUsername())) {
-            // ریست کامل وضعیت به مرحله صفر برای اجرای ربات
-            this.level = 0;
-            this.count = 0;
-            this.index = 0;
-            this.score = 0;
-        }
 
         Bundle bundle=getIntent().getExtras();
         id = bundle.getInt("id");
@@ -159,7 +149,6 @@ public class Game extends AppCompatActivity {
                 adsTapsell.GetVideo();
             }
         });
-
 
         btnMagnet = findViewById(R.id.btnMagnet);
         card_ads = findViewById(R.id.card_ads);
@@ -194,6 +183,7 @@ public class Game extends AppCompatActivity {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
+
 
 
         if (prefs.GetLevel("le_" + id_level) == level_category){
@@ -300,14 +290,6 @@ public class Game extends AppCompatActivity {
 
     }//main
 
-
-    void NavigateBack() {
-        Intent intent = new Intent(Game.this, Chapters.class);
-        intent.putExtra("id", level_category);
-        intent.putExtra("page", page);
-        startActivity(intent);
-        finish();
-    }
     public void OnWordSelected(String word, int count){
 
         if(!magnetEnable)
@@ -334,95 +316,98 @@ public class Game extends AppCompatActivity {
         }
     }
 
-
-    // =========================================================================
-    // دریافت سوالات و جملات فصل جاری (بدون نیاز به توکن)
-    // =========================================================================
-    void GetDate() {
+    void GetDate()
+    {
         Retrofit retrofit = RetrofitClient.getRetrofitInstance();
         ApiInterface apiInterface = retrofit.create(ApiInterface.class);
-
-        // فراخوانی مستقیم و عمومی با chapterId و زبان
         Call<ServerData.levels> call = apiInterface.sentences(id, prefs.GetLang());
-
-        call.enqueue(new Callback<ServerData.levels>() {
+        Callback<ServerData.levels> callback = new Callback<ServerData.levels>() {
             @Override
-            public void onResponse( Call<ServerData.levels> call,  Response<ServerData.levels> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getItems() != null) {
-                    List<ServerData.Items> items = response.body().getItems();
-                    if (!items.isEmpty()) {
-                        array_id.clear();
-                        array_question.clear();
-                        array_voice_jomle.clear();
-                        array_ads_image.clear();
-                        array_ads_title.clear();
-                        array_author.clear();
-                        array_pic.clear();
-                        array_voice.clear();
-                        question = "";
-
-                        for (ServerData.Items item : items) {
-                            array_id.add(item.getId());
-                            question = question.isEmpty() ? item.getTitle() : question + ":" + item.getTitle();
-                            array_voice_jomle.add(item.getVoice() != null ? item.getVoice() : "null");
-
-                            if (item.getSponsor() != null) {
-                                array_ads_image.add(item.getSponsor().getImage() != null ? item.getSponsor().getImage() : "null");
-                                array_ads_title.add(item.getSponsor().getTitle() != null ? item.getSponsor().getTitle() : "null");
+            public void onResponse(Call<ServerData.levels> call, Response<ServerData.levels> response) {
+                if (response.body().getItems() != null) {
+                    if (response.body().getItems().size() > 0) {
+                        for (int i = 0; i < response.body().getItems().size(); i++) {
+                            array_id.add(response.body().getItems().get(i).getId());
+                            if (question.equals("")) {
+                                question = response.body().getItems().get(i).getTitle();
                             } else {
+                                question = question + ":" + response.body().getItems().get(i).getTitle();
+                            }
+                            if (response.body().getItems().get(i).getVoice() != null){
+                                array_voice_jomle.add(response.body().getItems().get(i).getVoice());
+                            }else {
+                                array_voice_jomle.add("null");
+                            }
+                            if (response.body().getItems().get(i).getSponsor() != null) {
+                                if (response.body().getItems().get(i).getSponsor().getImage() != null) {
+                                    array_ads_image.add(response.body().getItems().get(i).getSponsor().getImage());
+                                } else {
+                                    array_ads_image.add("null");
+                                }
+                                if (response.body().getItems().get(i).getSponsor().getTitle() != null) {
+                                    array_ads_title.add(response.body().getItems().get(i).getSponsor().getTitle());
+                                }else{
+                                    array_ads_title.add("null");
+                                }
+                            }else {
                                 array_ads_image.add("null");
                                 array_ads_title.add("null");
                             }
-
-                            if (item.getCelebrity() != null) {
-                                array_author.add(item.getCelebrity().getTitle() != null ? item.getCelebrity().getTitle() : getString(R.string.nulll));
-                                String avatar = item.getCelebrity().getAvatar();
-                                array_pic.add((avatar != null && !avatar.contains("storage/")) ? avatar : "null");
-                                String vce = item.getCelebrity().getVoice();
-                                array_voice.add((vce != null && !vce.contains("storage/")) ? vce : "null");
-                            } else {
-                                array_author.add(getString(R.string.nulll));
+                            if (response.body().getItems().get(i).getCelebrity() != null) {
+                                if (response.body().getItems().get(i).getCelebrity().getTitle() != null) {
+                                    array_author.add(response.body().getItems().get(i).getCelebrity().getTitle());
+                                } else {
+                                    array_author.add(App.con.getResources().getString(R.string.nulll));
+                                }
+                                if (response.body().getItems().get(i).getCelebrity().getAvatar() != null && !response.body().getItems().get(i).getCelebrity().getAvatar().equals("http://tarhelohemandegar.ir/storage/")) {
+                                    array_pic.add(response.body().getItems().get(i).getCelebrity().getAvatar());
+                                } else {
+                                    array_pic.add("null");
+                                }
+                                if (response.body().getItems().get(i).getCelebrity().getVoice() != null && !response.body().getItems().get(i).getCelebrity().getVoice().equals("http://tarhelohemandegar.ir/storage/")) {
+                                    array_voice.add(response.body().getItems().get(i).getCelebrity().getVoice());
+                                } else {
+                                    array_voice.add("null");
+                                }
+                            }else {
+                                array_author.add(App.con.getResources().getString(R.string.nulll));
                                 array_pic.add("null");
                                 array_voice.add("null");
                             }
                         }
 
-                        String[] strArr = question.split(":");
-                        Collections.addAll(array_question, strArr);
-
-                        // اگر ادمین بود، ربات تشخیصی در صورت لزوم اجرا شود؛ در غیر این صورت روال عادی بازی
-                        if ("admin".equals(prefs.GetUsername())) {
-                            try {
-                                Class<?> botClass = Class.forName("com.game.education.activity.BotActivity");
-                                Intent botIntent = new Intent(Game.this, botClass);
-                                botIntent.putIntegerArrayListExtra("EXTRA_IDS", (ArrayList<Integer>) array_id);
-                                botIntent.putStringArrayListExtra("EXTRA_QUESTIONS", (ArrayList<String>) array_question);
-                                startActivity(botIntent);
-                                finish();
-                                return;
-                            } catch (ClassNotFoundException ignored) {
-                            }
+                        String[] str = question.split(":");
+                        for (int i = 0; i < str.length; i++) {
+                            array_question.add(str[i]);
                         }
-
                         SetAnswer();
-                        return;
+                    }else {
+                        //Toast.makeText(App.context, App.con.getResources().getString(R.string.no_level), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(App.context, App.con.getResources().getString(R.string.no_level), Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(Game.this,Chapters.class);
+                        i.putExtra("id",id_level);
+                        startActivity(i);
+                        finish();
                     }
                 }
-
-                Toast.makeText(App.context, getString(R.string.no_level), Toast.LENGTH_SHORT).show();
-                NavigateBack();
+                if (response.code() == 401){
+                    prefs.SetUsername("");
+                    AdsTapsell.Dialog(App.con.getResources().getString(R.string.login_token),Game.this);
+                }
             }
 
             @Override
-            public void onFailure(Call<ServerData.levels> call,  Throwable t) {
+            public void onFailure(Call<ServerData.levels> call, Throwable t) {
+                Log.e(App.LogName, t.toString());
                 count_1++;
-                if (count_1 > 4) {
-                    AdsTapsell.Dialog(getString(R.string.internet), Game.this);
-                } else {
+                if(count_1 > 4) {
+                    AdsTapsell.Dialog(App.con.getResources().getString(R.string.internet), Game.this);
+                }else {
                     GetDate();
                 }
             }
-        });
+        };
+        call.enqueue(callback);
     }
 
     void SetVoice()
@@ -468,6 +453,7 @@ public class Game extends AppCompatActivity {
 
         GetRandom();
     }
+
     private void GetRandom()
     {
         //Random random = new Random();
@@ -490,6 +476,7 @@ public class Game extends AppCompatActivity {
             scrollView.smoothScrollBy(0, delta);
         }, 400);
     }
+
     private void SetAnswer()
     {
         RestartLevel();
@@ -532,6 +519,7 @@ public class Game extends AppCompatActivity {
         }
 
     }
+
     private void RestartLevel()
     {
         for (int i=0; i<array_item.size(); i++){
@@ -1206,10 +1194,11 @@ public class Game extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent i = new Intent(Game.this, Chapters.class);
-        i.putExtra("id", id_level);
-        startActivity(i);
         super.onBackPressed();
+        Intent i = new Intent(Game.this,Chapters.class);
+        i.putExtra("id",id_level);
+        startActivity(i);
+        finish();
     }
 
     @Override
