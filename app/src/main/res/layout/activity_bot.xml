@@ -2,20 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="12dp"
-    android:background="#F5F5F5"
+    android:background="#060626"
+    android:gravity="start"
     android:layoutDirection="rtl"
-    android:gravity="start">
+    android:orientation="vertical"
+    android:padding="12dp">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingBottom="12dp"
         android:text="🤖 ربات جملک"
         android:textSize="22sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:paddingBottom="12dp"/>
+        android:textStyle="bold" />
 
     <!-- بخش ورود -->
     <LinearLayout
@@ -27,43 +27,47 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginEnd="4dp">
+            android:orientation="vertical">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="start"
                 android:text="نام کاربری ربات:"
-                android:textSize="12sp"
-                android:layout_gravity="start"/>
+                android:textSize="12sp" />
+
             <EditText
                 android:id="@+id/etUsername"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
                 android:hint="Username"
-                android:inputType="text"/>
+                android:inputType="text"
+                android:minHeight="48dp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="4dp">
+            android:orientation="vertical">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="start"
                 android:text="رمز عبور ربات:"
-                android:textSize="12sp"
-                android:layout_gravity="start"/>
+                android:textSize="12sp" />
+
             <EditText
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
                 android:hint="Password"
-                android:inputType="textPassword"/>
+                android:inputType="textPassword"
+                android:minHeight="48dp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -71,9 +75,9 @@
         android:id="@+id/btnLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="#2196F3"
         android:minHeight="48dp"
-        android:text="ورود"
-        android:backgroundTint="#2196F3"/>
+        android:text="ورود" />
 
     <!-- بخش تنظیمات ایمیل -->
     <LinearLayout
@@ -86,55 +90,58 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="📧 تنظیمات ایمیل"
-            android:textStyle="bold"
-            android:textSize="16sp"
+            android:gravity="start"
             android:paddingBottom="8dp"
-            android:gravity="start"/>
+            android:text="📧 تنظیمات ایمیل"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="start"
             android:text="ایمیل فرستنده (Gmail):"
-            android:textSize="12sp"
-            android:layout_gravity="start"/>
+            android:textSize="12sp" />
+
         <EditText
             android:id="@+id/etEmailUser"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
             android:hint="example@gmail.com"
-            android:inputType="textEmailAddress"/>
+            android:inputType="textEmailAddress"
+            android:minHeight="48dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="start"
             android:layout_marginTop="8dp"
             android:text="رمز اپلیکیشن (16 کاراکتری):"
-            android:textSize="12sp"
-            android:layout_gravity="start"/>
+            android:textSize="12sp" />
+
         <EditText
             android:id="@+id/etEmailPass"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
             android:hint="xxxx xxxx xxxx xxxx"
-            android:inputType="textPassword"/>
+            android:inputType="textPassword"
+            android:minHeight="48dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="start"
             android:layout_marginTop="8dp"
             android:text="ایمیل دریافت‌کننده:"
-            android:textSize="12sp"
-            android:layout_gravity="start"/>
+            android:textSize="12sp" />
+
         <EditText
             android:id="@+id/etEmailTo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
             android:hint="target@example.com"
-            android:inputType="textEmailAddress"/>
+            android:inputType="textEmailAddress"
+            android:minHeight="48dp" />
     </LinearLayout>
 
     <!-- دکمه‌ها -->
@@ -148,33 +155,33 @@
             android:id="@+id/btnStart"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
             android:layout_weight="1"
-            android:minHeight="48dp"
-            android:text="شروع"
-            android:enabled="false"
             android:backgroundTint="#4CAF50"
-            android:layout_marginEnd="4dp"/>
+            android:enabled="false"
+            android:minHeight="48dp"
+            android:text="شروع" />
 
         <Button
             android:id="@+id/btnSendEmail"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:minHeight="48dp"
-            android:text="ارسال"
-            android:backgroundTint="#FF9800"
             android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"/>
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1"
+            android:backgroundTint="#FF9800"
+            android:minHeight="48dp"
+            android:text="ارسال" />
 
         <Button
             android:id="@+id/btnClear"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
             android:layout_weight="1"
-            android:minHeight="48dp"
-            android:text="پاک کردن"
             android:backgroundTint="#9E9E9E"
-            android:layout_marginStart="4dp"/>
+            android:minHeight="48dp"
+            android:text="پاک کردن" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -182,6 +189,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="#1E1E1E"
-        android:padding="8dp"/>
+        android:background="#141414"
+        android:padding="8dp" />
 </LinearLayout>

@@ -24,6 +24,7 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.game.education.App;
 import com.game.education.R;
+import com.game.education.activity.Dashboard;
 import com.game.education.activity.Main;
 import com.game.education.api.ApiInterface;
 import com.game.education.api.RetrofitClient;
@@ -206,7 +207,12 @@ public class DialogSignin {
                         }
                         dismiss();
                         changeCoin(App.Register, "add", type);
-                        return;
+                        // --- اضافه کردن این بخش برای تازه‌سازی تمیز اکتیویتی بدون کرش ---
+                        if (activity instanceof Main) {
+                            ((Main) activity).recreate();
+                        } else if (activity instanceof Dashboard) {
+                            ((Dashboard) activity).recreate();
+                        }
                     } else {
                         String err = body.getError() != null ? body.getError() : "خطایی در ثبت‌نام رخ داد";
                         AdsTapsell.Dialog(err, activity);
@@ -350,7 +356,16 @@ public class DialogSignin {
                         }
 
                         // اصلاح اخطار Always True برای متد menu
+                        // بعد از پایان موفقیت‌آمیز GetBackupInfo و ذخیره اطلاعات:
                         menu.SetCoin();
+                        dismiss();
+
+                        // --- اضافه کردن این بخش برای تازه‌سازی تمیز اکتیویتی بدون کرش ---
+                        if (activity instanceof Main) {
+                            ((Main) activity).recreate();
+                        } else if (activity instanceof Dashboard) {
+                            ((Dashboard) activity).recreate();
+                        }
                     }
                 } else if (response.code() == 401) {
                     prefs.SetUsername("");

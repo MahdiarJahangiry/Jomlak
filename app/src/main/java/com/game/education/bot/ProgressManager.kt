@@ -12,26 +12,57 @@ data class Progress(
     var registeredUsers: MutableList<String> = mutableListOf()
 )
 
-class ProgressManager(context: Context) {
-
+class ProgressManager(private val context: Context) {
     private val file = File(context.filesDir, "jomlak_progress.json")
     private val gson = Gson()
 
     fun load(): Progress {
-        return try {
-            if (!file.exists()) return Progress()
-            val json = file.readText()
-            gson.fromJson(json, Progress::class.java) ?: Progress()
+        try {
+            if (file.exists()) {
+                val json = file.readText()
+                val data = gson.fromJson(json, Progress::class.java)
+                if (data != null) {
+                    data.completedSentences = data.completedSentences ?: mutableListOf()
+                    data.completedTitles = data.completedTitles ?: mutableListOf()
+                    data.completedWordTests = data.completedWordTests ?: mutableMapOf()
+                    data.completedSentenceTests = data.completedSentenceTests ?: mutableMapOf()
+                    return data
+                }
+            }
         } catch (e: Exception) {
-            Progress()
+            // Fallback
         }
+        return Progress()
     }
 
     fun save(progress: Progress) {
         try {
-            file.writeText(gson.toJson(progress))
+            val json = gson.toJson(progress)
+            file.writeText(json)
         } catch (e: Exception) {
-            e.printStackTrace()
+            // Ignored
         }
+    }
+
+    fun isWordSolved(key: String): Boolean {
+        val p = load()
+        return p.completedWordTests[key] == true
+    }
+
+    fun markWordSolved(key: String) {
+        val p = load()
+        p.completedWordTests[key] = true
+        save(p)
+    }
+
+    fun isSentencePartSolved(key: String): Boolean {
+        val p = load()
+        return p.completedSentenceTests[key] == true
+    }
+
+    fun markSentencePartSolved(key: String) {
+        val p = load()
+        p.completedSentenceTests[key] = true
+        save(p)
     }
 }

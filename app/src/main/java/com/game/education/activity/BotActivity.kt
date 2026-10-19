@@ -95,7 +95,7 @@ class BotActivity : AppCompatActivity() {
 
         // کلیک روی دکمه ارسال گزارش ایمیل
         btnSendEmail.setOnClickListener {
-            sendEmail()
+            sendEmailReport()
         }
     }
 
@@ -107,6 +107,7 @@ class BotActivity : AppCompatActivity() {
             Toast.makeText(this, "لطفاً نام کاربری و رمز عبور را وارد کنید", Toast.LENGTH_SHORT).show()
             return
         }
+
 
         // ساخت نمونه ربات با کانتکست و لامبدای لاگ
         bot = JomlakBot(
@@ -163,7 +164,12 @@ class BotActivity : AppCompatActivity() {
 
                 // اجرای عملیات کامل حل مراحل با run()
                 val result: Boolean = withContext(Dispatchers.IO) {
-                    currentBot.run()
+                    try {
+                        currentBot.run()
+                        true
+                    } catch (e: Exception) {
+                        false
+                    }
                 }
 
                 if (result) {
@@ -183,10 +189,7 @@ class BotActivity : AppCompatActivity() {
     }
 
 
-
-
-
-    private fun sendEmail() {
+    private fun sendEmailReport() {
         val emailUser = etEmailUser.text.toString().trim()
         val emailPass = etEmailPass.text.toString().trim()
         val emailTo = etEmailTo.text.toString().trim()
@@ -208,8 +211,8 @@ class BotActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.Main) {
             try {
                 // تایپ صریح Boolean برای withContext در ارسال ایمیل
-                val success: Boolean = withContext<Boolean>(Dispatchers.IO) {
-                    currentBot.sendEmailReport(emailUser, emailPass, emailTo)
+                val success: Boolean = withContext(Dispatchers.IO) {
+                    bot?.sendEmailReport(emailUser, emailPass, emailTo) ?: false
                 }
 
                     if (success) {
