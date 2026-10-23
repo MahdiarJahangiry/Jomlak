@@ -17,38 +17,38 @@
 
 
         <EditText
-            android:layout_width="match_parent"
-            android:layout_marginTop="25dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
             android:id="@+id/edt_email"
-            android:inputType="textEmailAddress"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginRight="15dp"
             android:background="@drawable/bordar_menu"
-            android:paddingRight="20dp"
+            android:hint="نام کاربری"
+            android:inputType="textEmailAddress"
             android:paddingLeft="20dp"
-            android:textColorHint="@color/black"
+            android:paddingRight="20dp"
             android:textColor="@color/black"
-            android:textSize="16sp"
-            android:hint="@string/username"
-            android:layout_height="55dp"/>
+            android:textColorHint="@color/black"
+            android:textSize="16sp" />
 
 
         <EditText
-            android:layout_width="match_parent"
             android:id="@+id/edt_pass"
-            android:layout_marginRight="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
             android:layout_marginLeft="15dp"
             android:layout_marginTop="15dp"
-            android:inputType="textPassword"
-            android:gravity="right|center"
+            android:layout_marginRight="15dp"
             android:background="@drawable/bordar_menu"
-            android:paddingRight="20dp"
+            android:gravity="right|center"
+            android:hint="رمز عبور"
+            android:inputType="textPassword"
             android:paddingLeft="20dp"
-            android:textColorHint="@color/black"
+            android:paddingRight="20dp"
             android:textColor="@color/black"
-            android:textSize="16sp"
-            android:hint="@string/password"
-            android:layout_height="55dp"/>
+            android:textColorHint="@color/black"
+            android:textSize="16sp" />
 
         <EditText
             android:layout_width="match_parent"

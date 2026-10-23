@@ -625,32 +625,52 @@ public class Main extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        menu.SetAnimCoin();
-        menu.SetCoin();
+
+        // ۱. توابع صوتی و بصری اصلی منو و بازی (همیشه باید اجرا شوند)
+        if (menu != null) {
+            menu.SetAnimCoin();
+            menu.SetCoin();
+        }
         SoundPlayer.PlayMusic();
 
-        boolean isLoggedIn = !prefs.GetUsername().trim().isEmpty() && !prefs.GetToken().trim().isEmpty();
+        // ۲. بررسی دقیق وضعیت لاگین کاربر (ترکیب امن نام کاربری و توکن)
+        boolean isLoggedIn = prefs != null &&
+                !prefs.GetUsername().trim().isEmpty() &&
+                !prefs.GetToken().trim().isEmpty();
 
+        // ۳. مدیریت وضعیت صفحه و درخواست‌های سرور بر اساس وضعیت لاگین
         if (isLoggedIn) {
+            // اگر کاربر لاگین کرده است: اطلاعات پشتیبان، کدتخفیف و موجودی بروزرسانی شود
             SaveBackupInfo();
             GetAffiliate();
             getBalance();
 
+            if (txt_register != null) {
+                txt_register.setText(getString(R.string.signup));
             }
-        else {
-            // کاربر هنوز لاگین نکرده؛ فوراً صفحه ورود/ثبت‌نام باز شود
             if (li_register != null) {
-                li_register.setVisibility(View.GONE); // روی صفحه اصلی هیچ دکمه‌ای نباشد
+                li_register.setVisibility(View.GONE); // مخفی کردن دکمه ثبت‌نام برای کاربر لاگین‌کرده
             }
-            new DialogRegister(Main.this, "main", googleHelper);
+        } else {
+            // اگر کاربر هنوز لاگین نکرده است: دکمه ثبت‌نام نمایان و دیالوگ باز شود
+            if (txt_register != null) {
+                txt_register.setText(getString(R.string.register_main));
+            }
+            if (li_register != null) {
+                li_register.setVisibility(View.VISIBLE); // نمایش دکمه ثبت‌نام
+            }
+
+            // گارد امنیتی Lifecycle برای جلوگیری از کرش BadTokenException هنگام ساخت دیالوگ
+            if (!isFinishing() && !isDestroyed()) {
+                new DialogRegister(Main.this, "main", googleHelper);
+            }
         }
 
-        if (!prefs.GetAds() && img_video != null) {
+        // ۴. مدیریت بخش ویدیو/تبلیغات
+        if (prefs != null && !prefs.GetAds() && img_video != null) {
             img_video.setVisibility(View.GONE);
         }
     }
-
-
     @Override
     protected void onPause() {
         super.onPause();
