@@ -13,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -61,6 +62,15 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class Game extends AppCompatActivity {
+
+    private final Handler uiHandler = new Handler(Looper.getMainLooper());
+    private final Runnable dialoWinRunnable = new Runnable() {
+        @Override public void run() {
+            if (!isFinishing() && !isDestroyed()) {
+                DialoWin();
+            }
+        }
+    };
 
     public static int color = -1;
     Timer timer_coin;
@@ -410,33 +420,56 @@ public class Game extends AppCompatActivity {
         call.enqueue(callback);
     }
 
-    void SetVoice()
-    {
-        mp = null;
-        mp_2 = null;
-        if (!array_voice.get(level).equals("null")) {
-            mp = new MediaPlayer();
-            try {
+    void SetVoice() {
+        try {
+            if (mp != null) {
+                try {
+                    if (mp.isPlaying()) mp.stop();
+                    mp.release();
+                } catch (Exception ignored) {}
+                mp = null;
+            }
+            if (mp_2 != null) {
+                try {
+                    if (mp_2.isPlaying()) mp_2.stop();
+                    mp_2.release();
+                } catch (Exception ignored) {}
+                mp_2 = null;
+            }
+
+            if (array_voice != null && level < array_voice.size() && !array_voice.get(level).equals("null")) {
+                mp = new MediaPlayer();
                 mp.setDataSource(array_voice.get(level));
-                mp.prepare();
-                mp.setVolume(prefs.GetVloume(),prefs.GetVloume());
-                mp.setLooping(false);
-            } catch (IOException e) {
-                Log.e(App.LogName, "prepare() failed");
+                mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mediaPlayer) {
+                        if (!isFinishing() && !isDestroyed()) {
+                            mediaPlayer.start();
+                        }
+                    }
+                });
+                mp.prepareAsync();
             }
-        }
-        if (!array_voice_jomle.get(level).equals("null")) {
-            mp_2 = new MediaPlayer();
-            try {
+
+            if (array_voice_jomle != null && level < array_voice_jomle.size() && !array_voice_jomle.get(level).equals("null")) {
+                mp_2 = new MediaPlayer();
                 mp_2.setDataSource(array_voice_jomle.get(level));
-                mp_2.prepare();
-                mp_2.setVolume(prefs.GetVloume(),prefs.GetVloume());
-                mp_2.setLooping(false);
-            } catch (IOException e) {
-                Log.e(App.LogName, "prepare() failed");
+                mp_2.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mediaPlayer) {
+                        if (!isFinishing() && !isDestroyed()) {
+                            mediaPlayer.start();
+                        }
+                    }
+                });
+                mp_2.prepareAsync();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
+
+
 
     private void SetRandomTheme()
     {
@@ -522,6 +555,7 @@ public class Game extends AppCompatActivity {
 
     private void RestartLevel()
     {
+        if (isFinishing() || isDestroyed()) return;
         for (int i=0; i<array_item.size(); i++){
             array_item.get(i).setVisibility(View.VISIBLE);
         }
@@ -751,6 +785,7 @@ public class Game extends AppCompatActivity {
 
     public void CheckAnswer()
     {
+        if (isFinishing() || isDestroyed()) return;
         if (text.equals(answer)){
             sound.PlaySuccess();
             re_word.setVisibility(View.INVISIBLE);
@@ -781,6 +816,7 @@ public class Game extends AppCompatActivity {
 
     private void SetEnd()
     {
+        if (isFinishing() || isDestroyed()) return;
         scrollView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.WRAP_CONTENT));
         if (prefs.GetLevel("le_" + id_level) == level_category) {
             NewShowAnswer(answer);
@@ -793,11 +829,11 @@ public class Game extends AppCompatActivity {
         }
         NewShowAnswer(array_author.get(level));
         if (prefs.GetTalker() && mp_2 != null){
-            mp_2.start();
+            try { if (mp_2 != null && !mp_2.isPlaying()) mp_2.start(); } catch (Exception ignored) {}
             GetPlayTalker();
         }else {
             if (prefs.GetTalker() && mp != null){
-                mp.start();
+                try { if (mp != null && !mp.isPlaying()) mp.start(); } catch (Exception ignored) {}
             }
         }
 
@@ -806,9 +842,8 @@ public class Game extends AppCompatActivity {
         level++;
         magnetEnable = prefs.getMagnet(id,level);
         count = 0;
-        new Handler().postDelayed(() -> {
-            DialoWin();
-        }, 5000);
+        uiHandler.removeCallbacks(dialoWinRunnable);
+        uiHandler.postDelayed(dialoWinRunnable, 5000);
     }
 
     private void GetPlayTalker()
@@ -818,10 +853,10 @@ public class Game extends AppCompatActivity {
             @Override
             public void run() {
                 runOnUiThread(() -> {
-                    if (!mp_2.isPlaying()){
+                    if (mp_2 == null || !mp_2.isPlaying()){
                         timer.cancel();
                         if (prefs.GetTalker() && mp != null){
-                            mp.start();
+                            try { if (mp != null && !mp.isPlaying()) mp.start(); } catch (Exception ignored) {}
                         }
                     }
                 });
@@ -832,6 +867,7 @@ public class Game extends AppCompatActivity {
 
     public  void DialoWin()
     {
+        if (isFinishing() || isDestroyed()) return;
         sound.PlayLevelEnd();
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -1212,16 +1248,35 @@ public class Game extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        SetTimerCansel();
-        if (customBlur != null) {
-            customBlur.CanslTimer();
+        try {
+            if (uiHandler != null) {
+                uiHandler.removeCallbacksAndMessages(null);
+            }
+            if (mp != null) {
+                if (mp.isPlaying()) mp.stop();
+                mp.release();
+                mp = null;
+            }
+            if (mp_2 != null) {
+                if (mp_2.isPlaying()) mp_2.stop();
+                mp_2.release();
+                mp_2 = null;
+            }
+            if (sound != null) {
+                sound.release();
+                sound = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        color = -1;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        uiHandler.removeCallbacksAndMessages(null);
+        if (mp != null) { try { if (mp.isPlaying()) mp.pause(); } catch(Exception ignored){} }
+        if (mp_2 != null) { try { if (mp_2.isPlaying()) mp_2.pause(); } catch(Exception ignored){} }
         SetTimerCansel();
         SoundPlayer.PauseMusic();
     }
