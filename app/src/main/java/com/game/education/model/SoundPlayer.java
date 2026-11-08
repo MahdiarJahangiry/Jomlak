@@ -125,69 +125,56 @@ public class SoundPlayer
         }
     }
 
-    public static void StartMusic() {
-        try {
-            // ۱. آزادسازی کامل مدیاپلیر قبلی قبل از ساخت جدید (جلوگیری از AudioDec leak)
-            if (music != null) {
-                try {
-                    if (music.isPlaying()) {
-                        music.stop();
-                    }
-                    music.release();
-                } catch (Exception ignored) {}
-                music = null;
-            }
-
-            // ۲. بررسی تنظیمات از طریق App.context (چون متد static است)
-            Prefs prefs = new Prefs((Activity) App.context);
-            if (prefs.GetMusic() && prefs.GetVloume() > 0f) {
+    public void StartMusic()
+    {
+        if (prefs.GetMusic()) {
+            if (prefs.GetVloume() > 0f) {
+                StopMusic();
                 int counter = prefs.getMusicCounter();
-                Random rand = new Random();
-                int ss = rand.nextInt(7);
-
-                if (counter == 0) {
-                    switch (ss) {
-                        case 0: music = MediaPlayer.create(App.context, R.raw.song1); break;
-                        case 1: music = MediaPlayer.create(App.context, R.raw.song2); break;
-                        case 2: music = MediaPlayer.create(App.context, R.raw.song3); break;
-                        case 3: music = MediaPlayer.create(App.context, R.raw.song4); break;
-                        case 4: music = MediaPlayer.create(App.context, R.raw.song5); break;
-                        case 5: music = MediaPlayer.create(App.context, R.raw.song6); break;
-                        default: music = MediaPlayer.create(App.context, R.raw.song7); break;
+                if(counter == 0){
+                    Random rand = new Random();
+                    int ss = rand.nextInt(7);
+                    if (ss == 0) {
+                        music = MediaPlayer.create(App.context, R.raw.song1);
+                    } else if (ss == 1) {
+                        music = MediaPlayer.create(App.context, R.raw.song2);
+                    } else if (ss == 2) {
+                        music = MediaPlayer.create(App.context, R.raw.song3);
+                    } else if (ss == 3) {
+                        music = MediaPlayer.create(App.context, R.raw.song4);
+                    } else if (ss == 4) {
+                        music = MediaPlayer.create(App.context, R.raw.song5);
+                    } else if (ss == 5) {
+                        music = MediaPlayer.create(App.context, R.raw.song6);
+                    } else {
+                        music = MediaPlayer.create(App.context, R.raw.song7);
                     }
-                } else {
-                    switch (ss) {
-                        case 0: music = MediaPlayer.create(App.context, R.raw.bikalam_1); break;
-                        case 1: music = MediaPlayer.create(App.context, R.raw.bikalam_2); break;
-                        case 2: music = MediaPlayer.create(App.context, R.raw.bikalam_3); break;
-                        case 3: music = MediaPlayer.create(App.context, R.raw.bikalam_4); break;
-                        case 4: music = MediaPlayer.create(App.context, R.raw.bikalam_5); break;
-                        case 5: music = MediaPlayer.create(App.context, R.raw.bikalam_6); break;
-                        default: music = MediaPlayer.create(App.context, R.raw.bikalam_7); break;
+                }else {
+                    Random rand = new Random();
+                    int ss = rand.nextInt(7);
+                    if (ss == 0) {
+                        music = MediaPlayer.create(App.context, R.raw.bikalam_1);
+                    } else if (ss == 1) {
+                        music = MediaPlayer.create(App.context, R.raw.bikalam_2);
+                    } else if (ss == 2) {
+                        music = MediaPlayer.create(App.context, R.raw.bikalam_3);
+                    } else if (ss == 3) {
+                        music = MediaPlayer.create(App.context, R.raw.bikalam_4);
+                    } else if (ss == 4) {
+                        music = MediaPlayer.create(App.context, R.raw.bikalam_5);
+                    } else if (ss == 5) {
+                        music = MediaPlayer.create(App.context, R.raw.bikalam_6);
+                    } else {
+                        music = MediaPlayer.create(App.context, R.raw.bikalam_7);
                     }
                 }
 
-                if (music != null) {
-                    music.setVolume(prefs.GetVloume(), prefs.GetVloume());
-                    music.setLooping(true);
-                    // استفاده از Handler امن روی Main Looper برای جلوگیری از ANR
-                    new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                if (music != null && !music.isPlaying()) {
-                                    music.start();
-                                }
-                            } catch (Exception ignored) {}
-                        }
-                    }, 200);
-                }
+                music.setVolume(prefs.GetVloume(), prefs.GetVloume());
+                music.setLooping(true);
+                new Handler().postDelayed(music::start, 200);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
-
 
     public static void StopMusic()
     {
@@ -223,20 +210,5 @@ public class SoundPlayer
     }
 
 
-    public static void release() {
-        try {
-            if (music != null) {
-                if (music.isPlaying()) music.stop();
-                music.release();
-                music = null;
-            }
-        } catch (Exception ignored) {}
 
-        try {
-            if (soundPool != null) {
-                soundPool.release();
-                soundPool = null;
-            }
-        } catch (Exception ignored) {}
-    }
 }//class

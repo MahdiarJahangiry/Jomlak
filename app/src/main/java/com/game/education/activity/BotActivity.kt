@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.game.education.App
 import com.game.education.R
 import com.game.education.bot.JomlakBot
 import com.game.education.bot.LogAdapter
@@ -45,7 +46,6 @@ class BotActivity : AppCompatActivity() {
         initViews()
         setupRecycler()
         setupListeners()
-
         checkAdminSession()
     }
 
@@ -74,134 +74,112 @@ class BotActivity : AppCompatActivity() {
         if (currentUsername == "admin") {
             btnStart.visibility = View.VISIBLE
             btnStart.isEnabled = true
-            appendLog("ادمین شناسایی شد. پنل ربات آماده کار است.")
+            appendLog("👤 ادمین شناسایی شد. پنل ربات آماده به کار است.")
         } else {
-            // اگر ادمین نباشد، دکمه اصلاً نشان داده نمی‌شود
             btnStart.visibility = View.GONE
-            appendLog("دسترسی محدود: لطفاً با حساب ادمین وارد شوید.")
+            appendLog("🔒 دسترسی محدود: لطفاً برای دسترسی به ربات با حساب ادمین وارد شوید.")
         }
     }
 
-       private fun setupListeners() {
-        // کلیک روی دکمه لاگین: اعتبارسنجی فیلدها و ارسال به متد handleLogin
+    private fun setupListeners() {
         btnLogin.setOnClickListener {
-            handleLogin()
+            val u = etUsername.text.toString().trim()
+            val p = etPassword.text.toString().trim()
+
+            // اعتبارسنچی ادمین (منطبق با ساختار پروژه)
+            if (u == "admin" && (p == "mh198553")) {
+                prefs.SetUsername("admin")
+                btnStart.visibility = View.VISIBLE
+                btnStart.isEnabled = true
+                appendLog("✅ ورود ادمین با موفقیت تأیید شد.")
+                Toast.makeText(this, "ورود ادمین موفقیت‌آمیز بود", Toast.LENGTH_SHORT).show()
+            } else {
+                btnStart.visibility = View.GONE
+                appendLog("❌ نام کاربری یا رمز عبور ادمین اشتباه است!")
+                Toast.makeText(this, "دسترسی غیرمجاز", Toast.LENGTH_SHORT).show()
+            }
         }
 
-        // کلیک روی دکمه شروع ربات (تنها پس از ورود موفق فعال است)
+        btnClear.setOnClickListener {
+            logAdapter.clear()
+            appendLog("🧹 لاگ‌ها پاک شدند.")
+        }
+
         btnStart.setOnClickListener {
             startBotDiagnostic()
         }
 
-        // کلیک روی دکمه ارسال گزارش ایمیل
         btnSendEmail.setOnClickListener {
-            sendEmailReport()
-        }
-    }
-
-    private fun handleLogin() {
-        val username = etUsername.text.toString().trim()
-        val password = etPassword.text.toString().trim() // دریافت مستقیم پسورد از ورودی متن مانند نام کاربری
-
-        if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "لطفاً نام کاربری و رمز عبور را وارد کنید", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-
-        // ساخت نمونه ربات با کانتکست و لامبدای لاگ
-        bot = JomlakBot(
-            context = this,
-            onLog = { logText ->
-                runOnUiThread {
-                    appendLog(logText)
-                }
-            }
-        )
-
-        lifecycleScope.launch {
-            btnLogin.isEnabled = false
-            btnLogin.text = "در حال ورود..."
-            appendLog("⏳ در حال تلاش برای احراز هویت با نام کاربری: $username")
-
-            // فراخوانی متد login داخل JomlakBot در نخ IO
-            val loginSuccess = withContext(Dispatchers.IO) {
-                bot?.login(username, password) ?: false
-            }
-
-            btnLogin.isEnabled = true
-            btnLogin.text = "ورود"
-
-            if (loginSuccess) {
-                appendLog("✅ احراز هویت موفقیت‌آمیز بود! توکن دریافت شد.")
-                btnStart.isEnabled = true
-                btnStart.text = "شروع ربات"
-                Toast.makeText(this@BotActivity, "ورود با موفقیت انجام شد", Toast.LENGTH_SHORT).show()
-            } else {
-                appendLog("❌ ورود ناموفق بود. نام کاربری یا رمز عبور نامعتبر است.")
-                btnStart.isEnabled = false
-                Toast.makeText(this@BotActivity, "ورود ناموفق! اطلاعات را بررسی کنید", Toast.LENGTH_SHORT).show()
-            }
+            sendEmailReportToAdmin()
         }
     }
 
     private fun startBotDiagnostic() {
-        if (isRunning) return
-
-        val currentBot = bot
-        if (currentBot == null) {
-            Toast.makeText(this, "لطفاً ابتدا لاگین کنید", Toast.LENGTH_SHORT).show()
+        if (isRunning) {
+            Toast.makeText(this, "ربات هم‌اکنون در حال اجراست...", Toast.LENGTH_SHORT).show()
             return
         }
 
+        val userToken = prefs.GetToken()
+        if (userToken.isNullOrEmpty()) {
+            Toast.makeText(this, "توکن کاربر موجود نیست. لطفاً وارد حساب خود شوید.", Toast.LENGTH_LONG).show()
+            appendLog("❌ خطا: توکن احراز هویت یافت نشد.")
+            return
+        }
+
+        // ترکیب توکن سراسری App و توکن ذخیره‌شده کاربر
+        val fullAuthToken = App.Token + userToken
+
         isRunning = true
         btnStart.isEnabled = false
-        btnStart.text = "در حال اجرا..."
+        progressBar?.visibility = View.VISIBLE
 
-        lifecycleScope.launch {
+        // مقداردهی JomlakBot مطابق با سازندهٔ جدید (Context, token, onLog)
+        val activeBot = JomlakBot(
+            context = this,
+            token = fullAuthToken,
+            onLog = { logText ->
+                lifecycleScope.launch(Dispatchers.Main) {
+                    appendLog(logText)
+                }
+            }
+        )
+        bot = activeBot
+
+        lifecycleScope.launch(Dispatchers.Main) {
             try {
-                appendLog("🚀 ربات جملک شروع به اجرای عملیات کرد...")
+                appendLog("🚀 شروع فرآیند پردازش خودکار ربات جملک...")
 
-                // اجرای عملیات کامل حل مراحل با run()
-                val result: Boolean = withContext(Dispatchers.IO) {
-                    try {
-                        currentBot.run()
-                        true
-                    } catch (e: Exception) {
-                        false
-                    }
+                // فراخوانی متد run() بدون آرگومان (طبق نسخه جدید JomlakBot)
+                withContext(Dispatchers.IO) {
+                    activeBot.run()
                 }
 
-                if (result) {
-                    appendLog("🎉 پردازش تمام مراحل با موفقیت به پایان رسید.")
-                } else {
-                    appendLog("⚠️ عملیات ربات با خطا مواجه شد یا متوقف گردید.")
-                }
-
+                appendLog("🏁 چرخه کامل ربات با موفقیت پایان یافت.")
+                Toast.makeText(this@BotActivity, "پردازش ربات به پایان رسید", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                appendLog("❌ خطای غیرمنتظره در اجرای ربات: ${e.message}")
+                appendLog("❌ خطای بحرانی در اجرای ربات: ${e.localizedMessage}")
             } finally {
                 isRunning = false
+                progressBar?.visibility = View.GONE
                 btnStart.isEnabled = true
-                btnStart.text = "اجرای مجدد ربات"
             }
         }
     }
 
-
-    private fun sendEmailReport() {
+    private fun sendEmailReportToAdmin() {
         val emailUser = etEmailUser.text.toString().trim()
         val emailPass = etEmailPass.text.toString().trim()
         val emailTo = etEmailTo.text.toString().trim()
 
         if (emailUser.isEmpty() || emailPass.isEmpty() || emailTo.isEmpty()) {
-            Toast.makeText(this, "لطفاً اطلاعات ایمیل را کامل وارد کنید", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "لطفاً اطلاعات کامل SMTP را برای ایمیل وارد کنید", Toast.LENGTH_SHORT).show()
             return
         }
 
         val currentBot = bot
         if (currentBot == null) {
-            Toast.makeText(this, "ابتدا باید ربات را حداقل یک‌بار اجرا کنید", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "لطفاً ابتدا ربات را اجرا کنید تا گزارش ایجاد شود.", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -210,20 +188,22 @@ class BotActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.Main) {
             try {
-                // تایپ صریح Boolean برای withContext در ارسال ایمیل
-                val success: Boolean = withContext(Dispatchers.IO) {
-                    bot?.sendEmailReport(emailUser, emailPass, emailTo) ?: false
+                appendLog("📧 در حال ارسال گزارش ایمیل...")
+
+                // فراخوانی متد sendEmailReport بدون پارامتر (منطبق با نسخه جدید JomlakBot)
+                val success: Boolean? = withContext(Dispatchers.IO) {
+                    currentBot.sendEmailReport(emailUser, emailPass, emailTo)
                 }
 
-                    if (success) {
-                    Toast.makeText(this@BotActivity, "ایمیل با موفقیت ارسال شد", Toast.LENGTH_SHORT).show()
-                    appendLog("گزارش با موفقیت به $emailTo ایمیل شد.")
+                if (success == true) {
+                    Toast.makeText(this@BotActivity, "گزارش با موفقیت ایمیل شد", Toast.LENGTH_SHORT).show()
+                    appendLog("✅ ایمیل گزارش با موفقیت ارسال شد.")
                 } else {
-                    Toast.makeText(this@BotActivity, "خطا در ارسال ایمیل", Toast.LENGTH_SHORT).show()
-                    appendLog("ارسال ایمیل ناموفق بود.")
+                    Toast.makeText(this@BotActivity, "ارسال ایمیل با خطا مواجه شد", Toast.LENGTH_SHORT).show()
+                    appendLog("❌ ارسال ایمیل ناموفق بود.")
                 }
             } catch (e: Exception) {
-                appendLog("خطا در ارسال ایمیل: ${e.localizedMessage}")
+                appendLog("❌ استثنا در زمان ارسال ایمیل: ${e.localizedMessage}")
                 Toast.makeText(this@BotActivity, "خطا در ارسال ایمیل", Toast.LENGTH_SHORT).show()
             } finally {
                 progressBar?.visibility = View.GONE
