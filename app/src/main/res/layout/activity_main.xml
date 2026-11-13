@@ -4,11 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layoutDirection="ltr"
+    android:layoutDirection="rtl"
     android:background="@color/white"
     tools:ignore="Overdraw">
 
+
     <!-- لوگو (پنهان) -->
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        app:srcCompat="@drawable/back_main" />
+
     <ImageView
         android:id="@+id/img_logo"
         android:layout_width="wrap_content"
@@ -18,57 +27,49 @@
         tools:ignore="ContentDescription" />
 
     <!-- تولبار -->
+
+
     <include layout="@layout/content_tolbar" />
 
+
     <!-- تصویر پس‌زمینه پایین -->
-    <ImageView
-        android:layout_width="260dp"
-        android:layout_height="290dp"
-        android:layout_alignParentBottom="true"
-        android:src="@drawable/ui"
-        tools:ignore="ContentDescription" />
 
     <!-- دکمه ربات جملک - گوشه بالا راست -->
     <LinearLayout
         android:id="@+id/li_bot"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="96dp"
+        android:layout_height="51dp"
+        android:layout_below="@+id/re_tolbar"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+
+        android:background="@drawable/longbtn"
+        android:clickable="true"
+        android:contentDescription="ربات"
+        android:focusable="true"
+        android:gravity="center"
         android:minWidth="48dp"
         android:minHeight="48dp"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/re_tolbar"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="15dp"
         android:orientation="horizontal"
         android:padding="10dp"
-        android:gravity="center"
-        android:background="#4CAF50"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="ربات"
         tools:ignore="HardcodedText,TextContrastCheck,ImageContrastCheck">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="18dp"
-            android:src="@android:drawable/ic_menu_manage"
-            app:tint="#FFFFFF"
-            tools:ignore="ContentDescription" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
             android:text="🤖 ربات"
             android:textColor="#FFFFFF"
             android:textSize="14sp"
-            android:textStyle="bold"
-            android:layout_marginStart="6dp" />
+            android:textStyle="bold" />
     </LinearLayout>
 
 
 
     <!-- دکمه پخش (مرکز صفحه) -->
     <RelativeLayout
+        android:id="@+id/relativeLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true">
@@ -76,7 +77,6 @@
         <TextView
             android:layout_width="190dp"
             android:layout_height="190dp"
-            android:layout_centerInParent="true"
             android:background="@drawable/back_play_fade_main" />
 
         <ImageView
@@ -88,10 +88,12 @@
             android:focusable="true"
             android:src="@drawable/seyfplay1"
             tools:ignore="ContentDescription" />
+
     </RelativeLayout>
 
-    <!-- دکمه ویدیو (گوشه بالا راست زیر تولبار و ربات) -->
+
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/re_tolbar"
@@ -101,26 +103,19 @@
         android:gravity="center|end"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/img_video"
-            android:layout_width="100dp"
-            android:layout_height="58dp"
-            android:background="@drawable/video_icon"
-            android:gravity="start|center_vertical"
-            android:paddingTop="5dp"
-            android:paddingStart="10dp"
-            android:textColor="@color/white"
-            android:textSize="22sp"
-            tools:ignore="RtlSymmetry,TextContrastCheck" />
     </LinearLayout>
 
     <!-- نوار پایین -->
+
+    <!-- منوی پایین -->
+
     <LinearLayout
         android:id="@+id/li_buttom"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="118dp"
         android:layout_alignParentBottom="true"
-        android:background="#E6FCFCFC"
+        android:layout_marginBottom="0dp"
+
         android:gravity="center"
         android:padding="15dp">
 
@@ -128,10 +123,10 @@
             android:id="@+id/li_frinds"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
             android:clickable="true"
             android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical"
             tools:ignore="UseCompoundDrawables">
 
             <ImageView
@@ -157,11 +152,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
+            android:clickable="true"
+            android:contentDescription="تبلیغات"
+            android:focusable="true"
             android:gravity="center"
             android:orientation="vertical"
-            android:clickable="true"
-            android:focusable="true"
-            android:contentDescription="تبلیغات"
             tools:ignore="HardcodedText">
 
             <ImageView
@@ -173,7 +168,31 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- منوی پایین -->
     <include layout="@layout/content_menu" />
+
+    <ImageView
+        android:id="@+id/TitleImage"
+        android:layout_width="320dp"
+        android:layout_height="285dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="47dp"
+        android:layout_marginTop="48dp"
+        app:srcCompat="@drawable/title" />
+
+    <TextView
+        android:id="@+id/img_video"
+        android:layout_width="92dp"
+        android:layout_height="62dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="95dp"
+        android:background="@drawable/video_icon"
+        android:gravity="start|center_vertical"
+        android:paddingStart="10dp"
+        android:paddingTop="5dp"
+        android:textColor="@color/white"
+        android:textSize="22sp"
+        tools:ignore="RtlSymmetry,TextContrastCheck" />
+
 
 </RelativeLayout>
