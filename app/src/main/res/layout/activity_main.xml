@@ -168,10 +168,8 @@
         </LinearLayout>
     </LinearLayout>
 
-    <include layout="@layout/content_menu" />
-
     <ImageView
-        android:id="@+id/TitleImage"
+        android:id="@+id/title_image"
         android:layout_width="320dp"
         android:layout_height="285dp"
         android:layout_alignParentLeft="true"
@@ -193,6 +191,9 @@
         android:textColor="@color/white"
         android:textSize="22sp"
         tools:ignore="RtlSymmetry,TextContrastCheck" />
+
+
+    <include layout="@layout/content_menu" />
 
 
 </RelativeLayout>

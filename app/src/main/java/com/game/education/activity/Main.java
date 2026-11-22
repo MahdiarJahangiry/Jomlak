@@ -67,6 +67,8 @@ public class Main extends AppCompatActivity {
     private TextView img_video;
     private TextView txt_register;
 
+
+
     private int backupRetryCount = 0;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -77,7 +79,7 @@ public class Main extends AppCompatActivity {
         // ۱. ابتدا setContentView صدا زده می‌شود تا DecorView تشکیل شود
         setContentView(R.layout.activity_main);
 
-        // ۲. حالا بدون هیچ خطایی فول‌اسکرین اعمال می‌شود
+       // ۲. حالا بدون هیچ خطایی فول‌اسکرین اعمال می‌شود
         applyFullScreen();
 
         initDependencies();
@@ -89,7 +91,6 @@ public class Main extends AppCompatActivity {
         GetAbout();
         GetVersion();
     }
-
 
     private void setupBackNavigation() {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -104,8 +105,10 @@ public class Main extends AppCompatActivity {
         prefs = new Prefs(this);
         menu = new Menu(this);
         sound = new SoundPlayer(this);
+
         adsTapsell = new AdsTapsell(this);
         apiInterface = RetrofitClient.getRetrofitInstance().create(ApiInterface.class);
+
 
         googleHelper = new GoogleLoginHelper(this, new GoogleLoginHelper.LoginListener() {
             @Override
@@ -626,6 +629,7 @@ public class Main extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+
         // ۱. توابع صوتی و بصری اصلی منو و بازی (همیشه باید اجرا شوند)
         if (menu != null) {
             menu.SetAnimCoin();
@@ -674,7 +678,12 @@ public class Main extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        menu.SetTimerCansel();
+
+
+        if (menu != null) {
+            menu.SetTimerCansel();
+        }
+
         SoundPlayer.PauseMusic();
     }
 
