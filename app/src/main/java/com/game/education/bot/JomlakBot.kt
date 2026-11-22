@@ -26,10 +26,12 @@ class JomlakBot(
 
     val solvedWords = mutableListOf<SolvedItem>()
     val solvedSentences = mutableListOf<SolvedItem>()
+    val unresolvedSentences = mutableListOf<UnsolvedItem>()
     val allWordsInAllSentences = mutableListOf<String>()
     val stuckReport = mutableListOf<String>()
 
     data class SolvedItem(val sentenceId: Int, val text: String, val timestamp: String)
+    data class UnsolvedItem(val sentenceId: Int, val text: String, val reason: String, val timestamp: String)
 
     data class ParsedSentence(
         val index: Int,
@@ -63,18 +65,12 @@ class JomlakBot(
         return if (!title.isNullOrEmpty()) title else "No text available"
     }
 
-    // ============================================================
-    // 🔗 لینک مستقیم ویرایش ادمین برای هر جمله
-    // ============================================================
     private fun makeSentenceEditLink(sentenceId: Int, text: String): String {
         val cleanText = text.ifEmpty { "بدون متن" }
         val editUrl = "https://unusualteaching.ir/sentences/$sentenceId/edit"
         return "متن جمله: \"$cleanText\" (لینک ویرایش: $editUrl)"
     }
 
-    // ============================================================
-    // 🔍 اعتبارسنجی طول کلمات، کاما و محدودیت‌ها
-    // ============================================================
     private fun validateSentence(sentenceId: Int, text: String): String? {
         if (text.isBlank() || text == "No text available") {
             return "جمله با شناسه $sentenceId فاقد متن است. " + makeSentenceEditLink(sentenceId, text)
@@ -93,9 +89,6 @@ class JomlakBot(
         return null
     }
 
-    // ============================================================
-    // 🔑 تجزیه متن فارسی به کلمات و جملات
-    // ============================================================
     fun parsePersianText(text: String?): ParsedTextResult {
         if (text.isNullOrEmpty() || text == "No text available") {
             return ParsedTextResult(emptyList(), emptyList(), text ?: "", 0, 0, emptyList())
@@ -188,9 +181,6 @@ class JomlakBot(
         return parsed
     }
 
-    // ============================================================
-    // 🔑 حل کلمه به کلمه
-    // ============================================================
     private suspend fun solveWordByWord(sentenceId: Int, sentenceText: String, parsed: ParsedTextResult): List<Boolean> {
         log("\n🔤 شروع حل کلمه به کلمه برای جمله $sentenceId...")
         log("─".repeat(45))
@@ -199,19 +189,10 @@ class JomlakBot(
         val timeStamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
         for (word in parsed.words) {
-            val wordKey = "${sentenceId}_word_${word}"
-
-            if (progress.isWordSolved(wordKey)) {
-                log("  ⏭️ کلمه \"${formatPersian(word)}\" قبلاً حل شده")
-                results.add(true)
-                continue
-            }
-
             log("\n  🔤 حل کلمه: ${formatPersian(word)}")
 
             val success = completeSentence(sentenceId)
             if (success) {
-                progress.markWordSolved(wordKey)
                 val itemText = "کلمه: \"$word\" | " + makeSentenceEditLink(sentenceId, sentenceText)
                 solvedWords.add(SolvedItem(sentenceId, itemText, timeStamp))
                 results.add(true)
@@ -227,11 +208,9 @@ class JomlakBot(
         return results
     }
 
-    // ============================================================
-    // 🔑 حل جمله به جمله
-    // ============================================================
     private suspend fun solveSentenceBySentence(
         sentenceId: Int,
+        sentenceText: String,
         parsed: ParsedTextResult
     ): List<Boolean> {
         log("\n📖 شروع حل جمله به جمله برای جمله $sentenceId...")
@@ -242,20 +221,12 @@ class JomlakBot(
 
         for (sentObj in parsed.sentences) {
             val sentText = sentObj.text
-            val sentKey = "${sentenceId}_sentence_${sentText}"
-
-            if (progress.isSentencePartSolved(sentKey)) {
-                log("  ⏭️ جمله/عبارت \"${formatPersian(sentText)}\" قبلاً حل شده")
-                results.add(true)
-                continue
-            }
 
             log("\n  📖 حل جمله/عبارت: ${formatPersian(sentText)}")
             log("     (شامل ${sentObj.wordCount} کلمه)")
 
             val success = completeSentence(sentenceId)
             if (success) {
-                progress.markSentencePartSolved(sentKey)
                 val itemText = makeSentenceEditLink(sentenceId, sentText)
                 solvedSentences.add(SolvedItem(sentenceId, itemText, timeStamp))
                 results.add(true)
@@ -271,14 +242,19 @@ class JomlakBot(
         return results
     }
 
-    // ============================================================
-    // 🔑 حل کامل یک جمله
-    // ============================================================
     private suspend fun solveSentenceCompletely(sentenceId: Int, sentenceText: String): Boolean {
-        // گارد اعتبارسنجی تعداد کلمات و ویرگول
+        val timeStamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
         val validationError = validateSentence(sentenceId, sentenceText)
         if (validationError != null) {
             reportStuck("word_validation_error", validationError)
+            unresolvedSentences.add(
+                UnsolvedItem(
+                    sentenceId = sentenceId,
+                    text = sentenceText,
+                    reason = validationError,
+                    timestamp = timeStamp
+                )
+            )
             return false
         }
 
@@ -290,7 +266,7 @@ class JomlakBot(
         allWordsInAllSentences.addAll(parsed.words)
 
         val wordResults = solveWordByWord(sentenceId, sentenceText, parsed)
-        val sentenceResults = solveSentenceBySentence(sentenceId, parsed)
+        val sentenceResults = solveSentenceBySentence(sentenceId, sentenceText, parsed)
 
         log("\n📖 حل کل جمله اصلی...")
         val fullSuccess = completeSentence(sentenceId)
@@ -299,6 +275,14 @@ class JomlakBot(
             log("✅ کل جمله $sentenceId با موفقیت حل شد")
         } else {
             log("❌ حل کل جمله $sentenceId ناموفق بود")
+            unresolvedSentences.add(
+                UnsolvedItem(
+                    sentenceId = sentenceId,
+                    text = sentenceText,
+                    reason = "خطا در درخواست تکمیل نهایی سرور (completeSentence ناموفق بود). " + makeSentenceEditLink(sentenceId, sentenceText),
+                    timestamp = timeStamp
+                )
+            )
         }
 
         val wordSuccessCount = wordResults.count { it }
@@ -318,33 +302,37 @@ class JomlakBot(
         log("⚠️ $msg")
     }
 
-    // ============================================================
-    // 📋 تولید گزارش جامع و واحد (هم برای لاگ و هم برای ایمیل)
-    // ============================================================
     fun generateReport(): String {
         val reportBuilder = StringBuilder()
-        reportBuilder.append("📋 گزارش جامع و عملکرد ربات جملک\n")
+        reportBuilder.append("📋 گزارش جامع و عملکرد اجرای جاری ربات جملک\n")
         reportBuilder.append("=====================================\n")
 
-        val pData = progress.load()
-        val completedSentencesSize = pData.completedSentences.size
-        val completedTitlesSize = pData.completedTitles.size
+        reportBuilder.append("🔤 کلمات حل شده در این اجرا: ${solvedWords.size}\n")
+        reportBuilder.append("📖 جملات/عبارات حل شده در این اجرا: ${solvedSentences.size}\n")
+        reportBuilder.append("❌ جملات حل‌نشده و دارای خطای اعتبارسنجی (>8 کلمه بدون ویرگول / خطاها): ${unresolvedSentences.size}\n")
+        reportBuilder.append("📚 کل کلمات پردازش شده در این اجرا: ${allWordsInAllSentences.size}\n")
+        reportBuilder.append("⚠️ تعداد خطاهای ساختاری و عناوین خالی (Stuck): ${stuckReport.size}\n\n")
 
-        reportBuilder.append("✅ جملات تکمیل شده در دیتابیس: $completedSentencesSize\n")
-        reportBuilder.append("✅ عناوین تکمیل شده: $completedTitlesSize\n")
-        reportBuilder.append("🔤 کلمات حل شده موفق: ${solvedWords.size}\n")
-        reportBuilder.append("📖 جملات/عبارات پردازش شده: ${solvedSentences.size}\n")
-        reportBuilder.append("📚 کل کلمات پردازش شده: ${allWordsInAllSentences.size}\n")
-        reportBuilder.append("⚠️ تعداد کل خطاهای گزارش شده (Stuck): ${stuckReport.size}\n\n")
 
+
+        if (unresolvedSentences.isNotEmpty()) {
+            reportBuilder.append("--- ❌ لیست جملات حل‌نشده و خطاهای اعتبارسنجی (بیش از8  کلمه بدون ویرگول / خطاها) ---\n")
+            unresolvedSentences.forEachIndexed { index, item ->
+                reportBuilder.append("${index + 1}. شناسه جمله: ${item.sentenceId}\n")
+                reportBuilder.append("   دلیل / خطا: ${item.reason}\n")
+            }
+            reportBuilder.append("\n")
+        } else {
+            reportBuilder.append("🎉 هیچ خطای اعتبارسنجی یا جمله حل‌نشده‌ای در این اجرا گزارش نشد!\n\n")
+        }
 
         if (stuckReport.isNotEmpty()) {
-            reportBuilder.append("--- لیست خطاها، هشدارها و نواقص ساختاری ---\n")
+            reportBuilder.append("--- لیست خطاها، هشدارها و نواقص ساختاری عناوین/زیرعناوین ---\n")
             stuckReport.forEachIndexed { index, err ->
                 reportBuilder.append("${index + 1}. $err\n")
             }
         } else {
-            reportBuilder.append("🎉 هیچ خطایی در ساختار یا تعداد کلمات گزارش نشد!\n")
+            reportBuilder.append("🎉 هیچ خطایی در عناوین، زیرعناوین یا تعداد کلمات گزارش نشد!\n")
         }
 
         val finalReportText = reportBuilder.toString()
@@ -352,14 +340,17 @@ class JomlakBot(
         return finalReportText
     }
 
-    // ============================================================
-    // متد اجرایی اصلی
-    // ============================================================
     suspend fun run() {
         withContext(Dispatchers.IO) {
-            log("🎮 ربات جملک")
+            solvedWords.clear()
+            solvedSentences.clear()
+            unresolvedSentences.clear()
+            allWordsInAllSentences.clear()
+            stuckReport.clear()
+
+            log("🎮 ربات جملک - شروع اجرای تازه")
             log("🎯 عناوین هدف: $targetTitleIds")
-            log("🔬 حالت: حل کلمه به کلمه + جمله به جمله با اعتبارسنجی کلمات")
+            log("🔬 حالت: حل کلمه به کلمه + جمله به جمله از صفر")
             log("=".repeat(50))
 
             try {
@@ -379,53 +370,57 @@ class JomlakBot(
 
                 for (title in targetTitles) {
                     val titleId = title.id ?: continue
+                    val titleName = title.title ?: "بدون عنوان"
                     log("\n" + "█".repeat(50))
-                    log("📚 عنوان $titleId: ${title.title ?: ""}")
+                    log("📚 عنوان [$titleId] $titleName")
                     log("█".repeat(50))
-
-                    val currentData = progress.load()
-                    if (currentData.completedTitles.contains(titleId)) {
-                        log("✅ عنوان $titleId قبلاً تکمیل شده است.")
-                        continue
-                    }
 
                     val categories = getCategories(titleId)
                     log("📂 تعداد دسته‌بندی‌ها: ${categories.size}")
 
                     if (categories.isEmpty()) {
-                        reportStuck("empty_categories", "برای عنوان $titleId (${title.title}) هیچ زیرعنوان یا شاخه‌ای یافت نشد.")
+                        reportStuck(
+                            "empty_categories",
+                            "عنوان [شناسه: $titleId، نام: '$titleName'] فاقد هرگونه دسته‌بندی (Category) است."
+                        )
                         continue
                     }
 
-                    var titleCompleted = true
                     var totalSentences = 0
                     var completedCount = 0
 
                     for (category in categories) {
                         val catId = category.id ?: continue
-                        log("\n  📂 دسته: ${category.name ?: catId.toString()}")
+                        val catName = category.name ?: category.title ?: "بدون نام"
+                        log("\n  📂 دسته [$catId] $catName")
 
                         val bases = getBases(catId)
                         if (bases.isEmpty()) {
-                            reportStuck("empty_bases", "شاخه با شناسه $catId در عنوان $titleId فاقد پایه (Base) است.")
-                            titleCompleted = false
+                            reportStuck(
+                                "empty_bases",
+                                "دسته‌بندی [شناسه: $catId، نام: '$catName'] تحت عنوان [شناسه: $titleId، نام: '$titleName'] فاقد پایه (Base) است."
+                            )
                             continue
                         }
 
                         for (base in bases) {
                             val baseId = base.id ?: continue
-                            log("\n    📁 پایه: ${base.name ?: baseId.toString()}")
+                            val baseName = base.name ?: base.title ?: "بدون نام"
+                            log("\n    📁 پایه [$baseId] $baseName")
 
                             val chapters = getChapters(baseId)
                             if (chapters.isEmpty()) {
-                                reportStuck("empty_chapters", "پایه با شناسه $baseId فاقد فصل (Chapter) است.")
-                                titleCompleted = false
+                                reportStuck(
+                                    "empty_chapters",
+                                    "پایه [شناسه: $baseId، نام: '$baseName'] در دسته [شناسه: $catId، نام: '$catName'] فاقد فصل (Chapter) است."
+                                )
                                 continue
                             }
 
                             for (chapter in chapters) {
                                 val chapterId = chapter.id ?: continue
-                                log("\n      📖 فصل: ${chapter.name ?: chapterId.toString()}")
+                                val chapterName = chapter.name ?: chapter.title ?: "بدون نام"
+                                log("\n      📖 فصل [$chapterId] $chapterName")
 
                                 val sentences = getSentences(chapterId)
                                 log("      تعداد جملات فصل: ${sentences.size}")
@@ -433,9 +428,8 @@ class JomlakBot(
                                 if (sentences.isEmpty()) {
                                     reportStuck(
                                         "empty_sentences",
-                                        "فصل با شناسه $chapterId فاقد هرگونه جمله است."
+                                        "فصل [شناسه: $chapterId، نام: '$chapterName'] تحت پایه [شناسه: $baseId، نام: '$baseName'] فاقد هرگونه جمله است."
                                     )
-                                    titleCompleted = false
                                     continue
                                 }
 
@@ -448,8 +442,6 @@ class JomlakBot(
                                     val success = solveSentenceCompletely(sentenceId, text)
                                     if (success) {
                                         completedCount++
-                                    } else {
-                                        titleCompleted = false
                                     }
 
                                     delay(delayMs)
@@ -458,15 +450,7 @@ class JomlakBot(
                         }
                     }
 
-                    log("\n📊 خلاصه عنوان $titleId: جملات $completedCount/$totalSentences")
-                    if (titleCompleted && completedCount == totalSentences && totalSentences > 0) {
-                        val dataToUpdate = progress.load()
-                        if (!dataToUpdate.completedTitles.contains(titleId)) {
-                            dataToUpdate.completedTitles.add(titleId)
-                            progress.save(dataToUpdate)
-                        }
-                        log("\n🎉 عنوان $titleId کاملاً به پایان رسید!")
-                    }
+                    log("\n📊 خلاصه عنوان [$titleId] $titleName: جملات حل‌شده $completedCount/$totalSentences")
                 }
 
                 log("\n🎉 عملیات کاوش و حل به پایان رسید!")
@@ -478,10 +462,6 @@ class JomlakBot(
             }
         }
     }
-
-    // ============================================================
-    // توابع ارتباط با سرور (Retrofit API Wrappers)
-    // ============================================================
 
     private suspend fun getTitles(): List<ServerData.Title> = withContext(Dispatchers.IO) {
         try {
@@ -631,44 +611,23 @@ class JomlakBot(
 
             if (response.isSuccessful) {
                 val body = response.body()
-                val isSuccess = body?.success ?: true
-                if (isSuccess) {
-                    val pData = progress.load()
-                    if (!pData.completedSentences.contains(sentenceId)) {
-                        pData.completedSentences.add(sentenceId)
-                        progress.save(pData)
-                    }
-                }
-                isSuccess
+                body?.success ?: true
             } else {
                 false
             }
         } catch (e: Exception) {
-            if (e is com.google.gson.JsonSyntaxException || e is IllegalStateException) {
-                val pData = progress.load()
-                if (!pData.completedSentences.contains(sentenceId)) {
-                    pData.completedSentences.add(sentenceId)
-                    progress.save(pData)
-                }
-                true
-            } else {
-                false
-            }
+            false
         }
     }
 
-    // ============================================================
-    // 📧 ارسال ایمیل با گزارش جامع و کامل
-    // ============================================================
-    suspend fun sendEmailReport(emailUser: String, emailPass: String, emailTo: String): Boolean? = withContext(Dispatchers.IO) {
+    suspend fun sendEmailReport(emailUser: String, emailPass: String, emailTo: String?): Boolean = withContext(Dispatchers.IO) {
         try {
             val config = EmailSender.EmailConfig(
                 user = emailUser,
                 password = emailPass,
-                to = emailTo
+                to = emailTo ?: ""
             )
 
-            // استفاده از گزارش جامع تولیدشده دقیقاً مشابه لاگ
             val reportContent = generateReport()
             val subject = "گزارش جامع و عملکرد ربات جملک"
             val plainBody = reportContent
@@ -704,15 +663,15 @@ class JomlakBot(
         }
     }
 
-    fun login(username: String, password: String): Boolean? {
+    fun login(username: String, password: String): Boolean {
         try {
             log("🔑 در حال ارسال درخواست ورود برای کاربر: $username")
             val response = api.login(username, password)
                 .execute()
             if (response.isSuccessful && response.body()?.success == true) {
-                val newToken = response.body()?.result?.token
-                if (!newToken.isNullOrEmpty()) {
-                    token = newToken
+                val authToken = response.body()?.result?.token
+                if (!authToken.isNullOrEmpty()) {
+                    token = authToken
                     log("✅ ورود با موفقیت انجام شد!")
                     return true
                 }
