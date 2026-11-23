@@ -3,14 +3,6 @@ plugins {
     id 'kotlin-android'
 }
 
-// ❌ این بخش را حذف کنید:
-// allprojects {
-//     repositories {
-//         google()
-//         mavenCentral()
-//         maven { url 'https://jitpack.io' }
-//     }
-// }
 
 android {
     namespace 'com.game.education'

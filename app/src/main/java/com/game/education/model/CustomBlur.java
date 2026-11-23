@@ -4,20 +4,21 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.util.AttributeSet;
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.androidanimations.library.YoYo;
-import com.game.education.App;
-import com.game.education.R;
-import com.jgabrielfreitas.core.BlurImageView;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import com.game.education.R;
+import com.jgabrielfreitas.core.BlurImageView;
+
 
 public class CustomBlur extends LinearLayout {
 
@@ -60,30 +61,52 @@ public class CustomBlur extends LinearLayout {
     }//main
 
 
-    void SetBlur()
-    {
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
+    private final android.os.Handler blurHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private Runnable blurRunnable;
+
+    void SetBlur() {
+        // پاک کردن تداخل‌های قبلی
+        CanslTimer();
+
+        blurRunnable = new Runnable() {
             @Override
             public void run() {
-                activity.runOnUiThread(() -> {
-                    if (img_background.getDrawable() != null) {
-                        timer.cancel();
-                        img_background.setBlur(15);
+                if (activity == null || activity.isFinishing()) {
+                    return;
+                }
+
+                if (img_background != null && img_background.getDrawable() != null) {
+                    android.graphics.drawable.Drawable drawable = img_background.getDrawable();
+
+                    // بررسی نوع تصویر برای جلوگیری از خطای ClassCastException مربوط به GIF
+                    if (drawable instanceof android.graphics.drawable.BitmapDrawable) {
+                        try {
+                            img_background.setBlur(15);
+                            img_blur.setVisibility(GONE);
+                        } catch (Exception e) {
+                            img_blur.setVisibility(GONE);
+                        }
+                    } else {
+                        // اگر GIF یا غیر Bitmap باشد، فقط لایه مات‌کننده را برمی‌داریم تا کرش نکند
                         img_blur.setVisibility(GONE);
                     }
-                });
+                    return; // کار تمام شد، نیازی به تکرار نیست
+                }
+
+                // اگر تصویر هنوز لود نشده بود، بعد از ۵۰۰ میلی‌ثانیه دوباره چک کن (جایگزین امن schedule)
+                blurHandler.postDelayed(this, 500);
             }
-        }, 0, 500);
+        };
+
+        // شروع اولین بررسی
+        blurHandler.post(blurRunnable);
     }
 
-    public void CanslTimer()
-    {
-        if (timer != null) {
-            timer.cancel();
+    public void CanslTimer() {
+        if (blurHandler != null && blurRunnable != null) {
+            blurHandler.removeCallbacks(blurRunnable);
         }
     }
-
 
 
 }//class
